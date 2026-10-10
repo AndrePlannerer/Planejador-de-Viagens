@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Planejador de viagens a dois para 2027: 28 destinos, clima e preço mês a mês, feriados com emenda, roteiros e planejador de economia.">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Viagens 2027 a Dois</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: quadro de partidas — controles fixos, resumo, gráficos comparativos, cards de destino, planejador */
+:root{
+  --bg:#eef2f6; --surface:#ffffff; --surface-2:#f4f7fa; --ink:#122033; --ink-2:#3d4d63; --muted:#5f7086; --line:#d5dde7; --track:#e3e9f0;
+  --accent:#e0a100; --accent-ink:#1b1400; --accent-text:#8a6200;
+  --good:#1f8a5b; --warn:#a86b12; --bad:#c2413b; --good-bg:#e3f4ec; --warn-bg:#fbf0dc; --bad-bg:#fbe5e3;
+  --c1:#3a6ea5; --c2:#d98c1f; --c3:#3f9a6b; --c4:#b5487a; --c5:#7a6bd0; --c6:#8a94a3;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1522; --surface:#132033; --surface-2:#182842; --ink:#e8eef6; --ink-2:#c3cfdd; --muted:#98a8bc; --line:#24354c; --track:#1c2b40;
+  --accent:#f5b81c; --accent-ink:#1b1400; --accent-text:#f5c64a;
+  --good:#4cc38a; --warn:#e3a843; --bad:#ef6f68; --good-bg:#12302a; --warn-bg:#33280f; --bad-bg:#3a1a1c;
+  --c1:#6b9ee0; --c2:#eea948; --c3:#5cc08b; --c4:#e07aa8; --c5:#a699f0; --c6:#98a3b3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1522; --surface:#132033; --surface-2:#182842; --ink:#e8eef6; --ink-2:#c3cfdd; --muted:#98a8bc; --line:#24354c; --track:#1c2b40;
+  --accent:#f5b81c; --accent-ink:#1b1400; --accent-text:#f5c64a;
+  --good:#4cc38a; --warn:#e3a843; --bad:#ef6f68; --good-bg:#12302a; --warn-bg:#33280f; --bad-bg:#3a1a1c;
+  --c1:#6b9ee0; --c2:#eea948; --c3:#5cc08b; --c4:#e07aa8; --c5:#a699f0; --c6:#98a3b3; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:28px 56px}
+
+/* Cabeçalho */
+.mast{display:grid;gap:10px;padding-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(42px,8vw,72px);line-height:.92;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.lede{max-width:66ch;color:var(--ink-2)}
+.nav{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:4px}
+.nav a{font-weight:600;font-size:14px;color:var(--ink-2);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.nav a:hover{color:var(--ink);border-color:var(--muted)}
+
+/* Controles fixos */
+.controls{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-inline:-16px;padding:10px 16px;background:color-mix(in oklab,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lbl{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13.5px;color:var(--ink-2);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+select{font-weight:500;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;max-width:100%}
+
+/* Resumo */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;align-content:start;min-width:0}
+.tile .k{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05}
+.tile .s{font-size:13.5px;color:var(--ink-2)}
+.tile.dark{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tile.dark .k{color:var(--accent)}
+.tile.dark .s{color:var(--bg);opacity:.8}
+
+/* Seções */
+section.block{margin-top:36px;scroll-margin-top:90px}
+.bhead{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:6px 20px;margin-bottom:12px}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,32px);text-transform:uppercase;letter-spacing:.01em}
+.bhead p{color:var(--ink-2);max-width:62ch;font-size:14.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.card h3{font-family:var(--display);font-weight:700;font-size:21px}
+.card .sub{color:var(--ink-2);font-size:14px;margin-top:2px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.cards .wide{grid-column:1 / -1}
+
+/* Legenda de categorias */
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend i.ln{width:14px;height:0;border-top:2px dashed var(--good);border-radius:0}
+
+/* Gráfico de barras empilhadas */
+.hbars{display:grid;gap:6px;margin-top:14px}
+.hb{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 88px;gap:10px;align-items:center;font-size:13.5px;border:0;background:none;padding:2px 0;text-align:left;cursor:pointer;width:100%}
+.hb:hover .name{color:var(--accent-text)}
+.hb .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.hb .name small{font-family:var(--mono);color:var(--muted);font-size:11px;margin-right:6px}
+.hb .track{position:relative;height:16px;background:var(--track);border-radius:4px}
+.hb .stack{position:absolute;inset:0 auto 0 0;display:flex;border-radius:4px;overflow:hidden}
+.hb .stack i{height:100%}
+.hb .val{font-family:var(--mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.budgetline{position:absolute;top:-4px;bottom:-4px;border-left:2px dashed var(--good);pointer-events:none}
+.axis{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 88px;gap:10px;margin-top:6px}
+.axis .ticks{position:relative;height:16px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.axis .ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.axis .ticks span:first-child{transform:none}
+
+/* Custo × clima */
+.lanes{display:grid;gap:8px;margin-top:14px}
+.lane{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:stretch}
+.lane .lab{font-family:var(--mono);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-radius:6px;display:grid;place-items:center;text-align:center;padding:4px}
+.lane .field{position:relative;background:var(--surface-2);border-radius:6px;min-height:40px}
+.dot{position:absolute;transform:translateX(-50%);font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.03em;padding:2px 6px;border-radius:4px;background:var(--ink);color:var(--accent);border:0;cursor:pointer;line-height:1.2;white-space:nowrap}
+.dot:hover{background:var(--accent);color:var(--accent-ink)}
+.laneaxis{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px}
+
+/* Composição */
+.comp{display:flex;height:34px;border-radius:6px;overflow:hidden;margin-top:14px}
+.comp i{height:100%}
+.complist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;margin-top:12px;font-size:13.5px}
+.complist div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.complist b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Ranking */
+.rank{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.rank li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px}
+.rank .cd{font-family:var(--display);font-weight:700;font-size:15px;background:var(--ink);color:var(--accent);border-radius:4px;text-align:center;padding:2px 0}
+.rank .lab{display:grid;gap:3px;min-width:0}
+.rank .lab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .tr{height:7px;background:var(--track);border-radius:4px;position:relative;overflow:hidden}
+.rank .tr i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+.rank .meta{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);text-align:right;white-space:nowrap}
+
+/* Cards de destino */
+.board{display:grid;gap:12px}
+.dest{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:78px minmax(0,1fr) minmax(0,290px);gap:16px;align-items:start;scroll-margin-top:90px}
+.dest.flash{box-shadow:0 0 0 3px var(--accent)}
+.code{font-family:var(--display);font-weight:800;font-size:32px;line-height:1;letter-spacing:.04em;background:var(--ink);color:var(--accent);border-radius:6px;text-align:center;padding:9px 0}
+.info{min-width:0;display:grid;gap:5px}
+.title{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.city{font-family:var(--display);font-weight:700;font-size:25px;line-height:1.05}
+.country{color:var(--muted);font-size:13.5px}
+.why{font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.chip-c{font-family:var(--mono);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.c-3{background:var(--good-bg);color:var(--good)} .c-2{background:var(--warn-bg);color:var(--warn)} .c-1{background:var(--bad-bg);color:var(--bad)}
+.price{min-width:0;display:grid;gap:6px}
+.amount{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.amount small{font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted)}
+.pp{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mini{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--track)}
+.mini i{height:100%}
+.inbudget{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--good)}
+.outbudget{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--bad)}
+.more{grid-column:1 / -1;display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+details.x summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;align-items:center;gap:8px;width:max-content;max-width:100%}
+details.x summary::-webkit-details-marker{display:none}
+details.x summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);transform:rotate(-45deg);transition:transform .15s;flex:none}
+details.x[open] summary::before{transform:rotate(45deg)}
+details.x > div{margin-top:10px}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{background:var(--surface-2);font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);font-weight:600}
+th.on,td.on{background:color-mix(in oklab,var(--accent) 16%,var(--surface))}
+tfoot td{font-weight:700;border-bottom:0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+.days{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.days li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;font-size:14px}
+.dl{font-family:var(--mono);font-size:11.5px;font-weight:600;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:4px;text-align:center;align-self:start;padding:2px 0}
+.recs{display:grid;gap:6px;font-size:14px;color:var(--ink-2);margin-top:10px}
+.recs strong{color:var(--ink)}
+.empty{color:var(--muted);padding:22px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.count{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+/* Planejador */
+.plan{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:22px;align-items:start}
+.plan form{display:grid;gap:14px}
+.field{display:grid;gap:6px}
+.field label,.field .fl{font-weight:600;font-size:14px}
+.qty{display:flex;gap:8px;align-items:center}
+.qty input{width:3.4em;text-align:center;font-family:var(--display);font-weight:700;font-size:20px;padding:5px;border-radius:8px;border:1px solid var(--line);background:var(--surface);-moz-appearance:textfield}
+.qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stp{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:18px;cursor:pointer}
+.checks{display:grid;gap:6px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+.check input{accent-color:var(--accent);width:16px;height:16px}
+.bigs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.big{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.big b{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
+.big span{font-size:12.5px;color:var(--ink-2)}
+.big.hl{background:var(--ink);color:var(--bg)}
+.big.hl span{color:var(--bg);opacity:.8}
+.big.hl b{color:var(--accent)}
+.timeline{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:0}
+.timeline li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.timeline .when{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent-text);text-transform:uppercase}
+
+/* Férias */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:12px;max-width:460px}
+.cal .h{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase}
+.cal .d{aspect-ratio:1.25;border-radius:6px;display:grid;place-items:center;font-family:var(--mono);font-size:13px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.cal .d.trip{background:color-mix(in oklab,var(--accent) 30%,var(--surface))}
+.cal .d.vac{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.cal .d.x{visibility:hidden}
+.yearplan{display:grid;gap:8px;margin-top:12px}
+.yp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:14px}
+.yp b{font-family:var(--display);font-size:18px;font-weight:700}
+.yp .n{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);text-align:right}
+
+.notes{display:grid;gap:10px;font-size:14px;color:var(--ink-2);max-width:78ch}
+.notes strong{color:var(--ink)}
+.sources{font-size:13px;color:var(--muted);columns:2;column-gap:28px}
+.sources a{color:var(--ink-2);display:block;margin-bottom:4px;break-inside:avoid}
+#tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:8px;font-size:12.5px;line-height:1.45;max-width:260px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#tip b{color:var(--accent)}
+
+@media (max-width:900px){
+  .summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .plan{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:720px){
+  .dest{grid-template-columns:60px minmax(0,1fr)}
+  .code{font-size:24px}
+  .price{grid-column:1 / -1}
+  .hb,.axis{grid-template-columns:minmax(0,108px) minmax(0,1fr) 70px;gap:8px}
+  .hb .name small{display:none}
+  .lane,.laneaxis{grid-template-columns:64px minmax(0,1fr)}
+  .sources{columns:1}
+  .bigs{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:480px){
+  .summary{grid-template-columns:minmax(0,1fr)}
+  .controls{gap:8px 12px}
+  .controls .lbl{display:none}
+  .seg button{padding:6px 9px;font-size:13px}
+  .complist{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Mês a mês */
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;margin-top:12px}
+.mbtn{overflow:hidden;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 4px 7px;cursor:pointer;display:grid;gap:3px;justify-items:center;min-width:0}
+.mbtn b{font-family:var(--display);font-size:19px;font-weight:700;text-transform:uppercase;line-height:1}
+.mbtn span{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.mbtn .mb{width:100%;height:4px;border-radius:2px;background:var(--track);position:relative;overflow:hidden}
+.mbtn .mb i{position:absolute;inset:0 auto 0 0;background:var(--good)}
+.mbtn .fh{font-size:10.5px;color:var(--accent-text);font-weight:600;min-height:1.2em}
+.mbtn:hover{border-color:var(--muted)}
+.mbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+.mbtn[aria-pressed="true"] b,.mbtn[aria-pressed="true"] .fh{color:var(--accent)}
+.mbtn[aria-pressed="true"] span{color:var(--bg)}
+.heatwrap{overflow-x:auto;margin-top:12px}
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;font-size:12.5px}
+.heat th,.heat td{border:0;padding:0;white-space:nowrap;background:none}
+.heat thead th{font-family:var(--mono);font-size:11px;text-align:center;color:var(--muted);padding:2px 0;text-transform:uppercase;background:none}
+.heat thead th.on{color:var(--ink);background:none;font-weight:700}
+.heat th[scope="row"]{text-align:left;font-weight:500;font-family:var(--body);font-size:13px;padding-right:10px;position:sticky;left:0;background:var(--surface);z-index:1;text-transform:none;letter-spacing:0;color:var(--ink)}
+.heat td button{width:100%;min-width:30px;height:24px;border:0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;padding:0}
+.heat td.on button{box-shadow:inset 0 0 0 2px var(--ink)}
+.heat td button.c-3{background:color-mix(in oklab,var(--good) 42%,var(--surface));color:var(--ink)}
+.heat td button.c-2{background:color-mix(in oklab,var(--warn) 30%,var(--surface));color:var(--ink)}
+.heat td button.c-1{background:color-mix(in oklab,var(--bad) 30%,var(--surface));color:var(--ink)}
+.heat td{background:none}
+.strip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:320px;margin-top:4px}
+.strip i{height:16px;border-radius:2px;font-style:normal;font-family:var(--mono);font-size:9.5px;display:grid;place-items:center;font-weight:600;text-transform:uppercase}
+.strip i.on{box-shadow:inset 0 0 0 2px var(--ink)}
+.mnote{font-size:13.5px;color:var(--ink-2)}
+.mnote b{color:var(--ink)}
+.ychart{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;height:130px;margin-top:10px}
+.ycol{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:4px;border:0;background:none;padding:0;cursor:pointer;height:100%;min-width:0}
+.ycol .yt{display:flex;align-items:flex-end;height:100%}
+.ycol .yb{width:100%;border-radius:4px 4px 0 0}
+.ycol span{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center;text-transform:uppercase}
+.ycol[aria-pressed="true"] span{color:var(--ink);font-weight:700}
+.ycol[aria-pressed="true"] .yb{box-shadow:0 0 0 2px var(--ink)}
+.yb.s3{background:var(--good)} .yb.s2{background:var(--warn)} .yb.s1{background:var(--bad)}
+.cal .d.hol{box-shadow:inset 0 -3px 0 var(--bad)}
+.cal .d.em{background:repeating-linear-gradient(135deg,var(--surface-2) 0 4px,color-mix(in oklab,var(--accent) 35%,var(--surface)) 4px 8px)}
+.optchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.optchips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.optchips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.callout{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:14px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.holtbl td{white-space:normal;text-align:left;vertical-align:top}
+.holtbl td:last-child{text-align:right;white-space:nowrap}
+.holtbl tbody tr{cursor:pointer}
+.holtbl tbody tr:hover td{background:var(--surface-2)}
+.holtbl tbody tr.on td{background:color-mix(in oklab,var(--accent) 14%,var(--surface))}
+.holtbl button{border:0;background:none;padding:0;font:inherit;font-weight:700;cursor:pointer;color:var(--ink);text-align:left}
+.days li{grid-template-columns:84px minmax(0,1fr)}
+@media (max-width:720px){
+  .months{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .controls{position:static}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow" id="eyebrow"></span>
+    <h1>Viagens <span>2027</span> a dois</h1>
+    <p class="lede">28 destinos no Brasil e no mundo para qualquer mês de 2027. Escolha o mês e as datas: o clima, os preços de alta e baixa temporada, os feriados com emenda, os roteiros e o planejador se ajustam. Os valores partem de preços pesquisados em 2026 e servem como projeção, não como cotação.</p>
+    <nav class="nav" aria-label="Seções">
+      <a href="#meses">Mês a mês</a><a href="#comparativo">Comparativo</a><a href="#destinos">Destinos e roteiros</a><a href="#planejador">Planejador</a><a href="#ferias">Férias e feriados</a><a href="#fontes">Fontes</a>
+    </nav>
+  </header>
+
+  <div class="controls" role="group" aria-label="Filtros">
+    <div class="ctl"><label class="lbl" for="month">Mês</label><select id="month"></select></div>
+    <div class="ctl"><span class="lbl">Duração</span>
+      <div class="seg" id="durSeg">
+        <button type="button" id="du-7" data-d="7" aria-pressed="true">7 noites</button>
+        <button type="button" id="du-5" data-d="5" aria-pressed="false">5 dias</button>
+      </div>
+    </div>
+    <div class="ctl"><label class="lbl" for="opt">Datas</label><select id="opt"></select></div>
+    <div class="ctl"><span class="lbl">Perfil</span>
+      <div class="seg" id="profSeg">
+        <button type="button" id="pr-e" data-p="e" aria-pressed="true">Econômico</button>
+        <button type="button" id="pr-i" data-p="i" aria-pressed="false">Intermediário</button>
+        <button type="button" id="pr-c" data-p="c" aria-pressed="false">Confortável</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="lbl">Valores</span>
+      <div class="seg" id="modeSeg">
+        <button type="button" id="md-casal" data-m="casal" aria-pressed="true">Casal</button>
+        <button type="button" id="md-pp" data-m="pp" aria-pressed="false">Por pessoa</button>
+      </div>
+    </div>
+    <div class="ctl"><label class="lbl" for="budget">Teto por pessoa</label>
+      <select id="budget">
+        <option value="0">Sem limite</option>
+        <option value="3500">Até R$ 3.500</option>
+        <option value="5000">Até R$ 5.000</option>
+        <option value="8000">Até R$ 8.000</option>
+        <option value="12000">Até R$ 12.000</option>
+      </select>
+    </div>
+    <div class="ctl"><label class="lbl" for="region">Região</label><select id="region"></select></div>
+  </div>
+
+  <section class="block" id="meses" aria-labelledby="h-mes" style="margin-top:22px">
+    <div class="card">
+      <h3 id="h-mes">Escolha o mês</h3>
+      <p class="sub">A barra verde mostra quantos destinos estão no melhor momento do ano. Os meses com feriado aproveitável trazem o nome dele.</p>
+      <div class="months" id="months" role="group" aria-label="Mês da viagem"></div>
+    </div>
+  </section>
+
+  <div class="summary" id="summary"></div>
+
+  <section class="block" aria-labelledby="h-heat">
+    <div class="bhead"><h2 id="h-heat">Melhor época de cada destino</h2><p>Verde é o melhor momento do ano, amarelo funciona com ressalvas e vermelho é melhor evitar. A estrela marca o mês com melhor clima pelo menor preço. Toque numa célula para ir ao mês e ao destino.</p></div>
+    <div class="card">
+      <div class="heatwrap"><table class="heat" id="heat"></table></div>
+      <div class="legend"><span><i class="c-3" style="background:var(--good-bg);border:1px solid var(--good)"></i>Ótimo</span><span><i style="background:var(--warn-bg);border:1px solid var(--warn)"></i>Bom, com ressalvas</span><span><i style="background:var(--bad-bg);border:1px solid var(--bad)"></i>Fraco</span><span>★ Melhor custo-benefício do ano</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="comparativo" aria-labelledby="h-comp">
+    <div class="bhead"><h2 id="h-comp">Comparativo</h2><p id="compSub"></p></div>
+    <div class="cards">
+      <div class="card wide">
+        <h3>Quanto custa cada viagem</h3>
+        <p class="sub">Custo total dividido por item, já com o ajuste de alta ou baixa temporada do mês. Toque numa barra para abrir o destino.</p>
+        <div class="hbars" id="hbars"></div>
+        <div class="axis" id="axis" aria-hidden="true"></div>
+        <div class="legend" id="catLegend"></div>
+      </div>
+      <div class="card wide">
+        <h3 id="lanesTitle">Custo × clima</h3>
+        <p class="sub">Quanto mais à esquerda, mais barato. A faixa de cima reúne os destinos no melhor momento do ano.</p>
+        <div class="lanes" id="lanes"></div>
+      </div>
+      <div class="card">
+        <h3>Para onde vai o dinheiro</h3>
+        <p class="sub" id="compNote"></p>
+        <div class="comp" id="compBar"></div>
+        <div class="complist" id="compList"></div>
+      </div>
+      <div class="card">
+        <h3>Custo por dia aproveitado</h3>
+        <p class="sub">Desconta o tempo perdido em voos e estrada. Destinos longe pagam mais por cada dia de passeio.</p>
+        <ol class="rank" id="perDay"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="destinos" aria-labelledby="h-dest">
+    <div class="bhead"><h2 id="h-dest">Destinos e roteiros</h2>
+      <div class="ctl"><label class="lbl" for="sort">Ordenar</label>
+        <select id="sort">
+          <option value="price">Menor preço</option>
+          <option value="climate">Melhor clima no mês</option>
+          <option value="day">Menor custo por dia</option>
+          <option value="flight">Menos tempo de viagem</option>
+        </select>
+      </div>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="board" id="board" style="margin-top:10px"></div>
+  </section>
+
+  <section class="block" id="planejador" aria-labelledby="h-plan">
+    <div class="bhead"><h2 id="h-plan">Planejador</h2><p>Escolha o destino e ajuste. O planejador calcula o total, quanto guardar por mês até a viagem, o que comprar em cada época e como o preço muda ao longo do ano.</p></div>
+    <div class="card plan">
+      <form id="planForm" autocomplete="off">
+        <div class="field"><label for="pl-dest">Destino</label><select id="pl-dest"></select></div>
+        <div class="field"><label for="pl-month">Mês</label><select id="pl-month"></select></div>
+        <div class="field"><span class="fl" id="pl-dl">Duração</span>
+          <div class="seg" id="pl-dur" role="group" aria-labelledby="pl-dl">
+            <button type="button" id="pd-7" data-d="7" aria-pressed="true">7 noites</button>
+            <button type="button" id="pd-5" data-d="5" aria-pressed="false">5 dias</button>
+          </div>
+        </div>
+        <div class="field"><label for="pl-opt">Datas</label><select id="pl-opt"></select></div>
+        <div class="field"><span class="fl" id="pl-pl">Perfil</span>
+          <div class="seg" id="pl-prof" role="group" aria-labelledby="pl-pl">
+            <button type="button" id="pp-e" data-p="e" aria-pressed="true">Econômico</button>
+            <button type="button" id="pp-i" data-p="i" aria-pressed="false">Intermediário</button>
+            <button type="button" id="pp-c" data-p="c" aria-pressed="false">Confortável</button>
+          </div>
+        </div>
+        <div class="field"><span class="fl">Pessoas</span>
+          <div class="qty">
+            <button type="button" class="stp" id="pl-minus" aria-label="Uma pessoa a menos">−</button>
+            <input type="number" id="pl-n" min="1" max="6" value="2" inputmode="numeric" aria-label="Número de pessoas">
+            <button type="button" class="stp" id="pl-plus" aria-label="Uma pessoa a mais">+</button>
+          </div>
+        </div>
+        <div class="field"><span class="fl">Incluir no cálculo</span>
+          <div class="checks" id="pl-items"></div>
+        </div>
+        <div class="field"><label for="pl-extra">Reserva para imprevistos</label>
+          <select id="pl-extra">
+            <option value="0">Nenhuma</option>
+            <option value="0.1" selected>10% a mais</option>
+            <option value="0.2">20% a mais</option>
+          </select>
+        </div>
+      </form>
+      <div aria-live="polite">
+        <h3 id="pl-title"></h3>
+        <p class="sub" id="pl-sub"></p>
+        <div class="bigs" style="margin-top:12px" id="pl-bigs"></div>
+        <div class="mini" style="margin-top:14px;height:14px" id="pl-bar"></div>
+        <div class="tscroll" style="margin-top:12px"><table id="pl-tbl"></table></div>
+        <h3 style="margin-top:18px;font-size:19px">O mesmo destino ao longo do ano</h3>
+        <p class="sub" id="pl-ysub"></p>
+        <div class="ychart" id="pl-year" role="group" aria-label="Custo por mês"></div>
+        <h3 style="margin-top:18px;font-size:19px">Calendário de compras</h3>
+        <ol class="timeline" id="pl-time"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="ferias" aria-labelledby="h-fer">
+    <div class="bhead"><h2 id="h-fer">Férias e feriados</h2><p>Cada período de férias precisa ter pelo menos 5 dias corridos, e a CLT não deixa as férias começarem nos 2 dias antes de um feriado ou do domingo. As datas abaixo já respeitam essas regras.</p></div>
+    <div class="cards">
+      <div class="card">
+        <h3 id="calTitle"></h3>
+        <div class="optchips" id="calOpts" role="group" aria-label="Datas"></div>
+        <div class="cal" id="cal"></div>
+        <div class="legend"><span><i style="background:var(--accent)"></i>Dia de férias</span><span><i style="background:color-mix(in oklab,var(--accent) 30%,var(--surface))"></i>Viagem fora das férias</span><span><i style="background:var(--surface-2);box-shadow:inset 0 -3px 0 var(--bad)"></i>Feriado</span><span><i style="background:repeating-linear-gradient(135deg,var(--surface-2) 0 3px,color-mix(in oklab,var(--accent) 35%,var(--surface)) 3px 6px)"></i>Emenda</span></div>
+        <div class="callout" id="calNote"></div>
+      </div>
+      <div class="card">
+        <h3>Os 30 dias de férias no ano</h3>
+        <p class="sub">Até 3 períodos, sendo um de pelo menos 14 dias. O bloco do Carnaval já ocupa esse período longo.</p>
+        <div class="yearplan" id="yearplan"></div>
+        <p class="sub" style="margin-top:10px" id="ypTot"></p>
+      </div>
+      <div class="card wide">
+        <h3>Feriados de 2027 e a melhor emenda de cada mês</h3>
+        <p class="sub">Toque numa linha para escolher o mês e a emenda.</p>
+        <div class="tscroll" style="margin-top:12px"><table class="holtbl" id="holtbl"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block notes" aria-labelledby="h-notes">
+    <h2 id="h-notes" style="color:var(--ink)">Como ler os números</h2>
+    <p><strong>Temporada:</strong> os preços pesquisados são de agosto. Para os outros meses, passagem e hospedagem sobem cerca de 25% na alta temporada de cada destino e caem cerca de 15% na baixa. Férias escolares de janeiro e julho, Carnaval e fim de ano encarecem a maioria dos destinos.</p>
+    <p><strong>Clima:</strong> a classificação de cada mês vem do padrão de chuvas, temperatura e temporadas de cada lugar. Um ano atípico pode mudar isso.</p>
+    <p><strong>Duração:</strong> passagem custa o mesmo para qualquer duração; hospedagem acompanha as noites, e comida, passeios e transporte local acompanham os dias. As emendas de feriado podem ter mais ou menos noites que a semana padrão.</p>
+    <p><strong>Perfis:</strong> econômico usa hospedagem simples e comida local; intermediário, hotel 3 a 4 estrelas e mais passeios pagos. O confortável é uma projeção a partir do intermediário.</p>
+    <p><strong>Emendas e pontos facultativos:</strong> Carnaval e Corpus Christi são pontos facultativos, e as segundas antes de feriados de terça só ficam livres se a empresa emendar. Confirme antes de comprar.</p>
+    <p><strong>Câmbio:</strong> os valores em reais usam o câmbio de 2026. Uma alta do dólar ou do euro encarece mais os destinos internacionais.</p>
+  </section>
+  <section class="block" id="fontes" aria-labelledby="h-src">
+    <h2 id="h-src" style="margin-bottom:12px">Fontes</h2>
+    <div class="sources">
+      <a href="https://www.compararsegurodeviagem.com.br/seguro-viagem/blog/qual-custo-viagem-para-argentina/">Custo de viagem para a Argentina em 2026</a>
+      <a href="https://revistaforum.com.br/forumtudo/2026/01/26/quanto-custa-viajar-para-santiago-do-chile-em-2026-e-o-que-pesa-mais-no-orcamento">Quanto custa viajar para Santiago em 2026</a>
+      <a href="https://dicaschile.com.br/chile/quanto-custa-uma-viagem-para-o-chile/">Dicas Chile: orçamento 2026</a>
+      <a href="https://peruexperience.com.br/machu-picchu/">Machu Picchu 2026: guia para brasileiros</a>
+      <a href="https://meutudo.com.br/blog/quanto-custa-uma-viagem-para-o-peru">Quanto custa uma viagem para o Peru</a>
+      <a href="https://www.bemgasto.com/5-destinos-internacionais-baratos-para-brasileiros-em-2026">Destinos internacionais baratos em 2026</a>
+      <a href="https://www.infomoney.com.br/colunistas/convidados/quanto-custa-viajar-para-portugal-guia-para-viajar-com-conforto/">Quanto custa viajar para Portugal (InfoMoney)</a>
+      <a href="https://www.myroteiro.com/pt-br/guias/quanto-custa-viagem-para-lisboa-2026">Quanto custa uma viagem para Lisboa em 2026</a>
+      <a href="https://dicasdaitalia.com.br/italia/quanto-custa-viajar-para-a-italia/">Quanto custa viajar para a Itália</a>
+      <a href="https://www.dicasbarcelona.com.br/quanto-custa-viajar-para-espanha/">Quanto custa viajar para a Espanha</a>
+      <a href="https://www.grupodicas.com/quanto-custa-viajar-para-nova-york/">Quanto custa viajar para Nova York</a>
+      <a href="https://viajandobaratoparaorlando.com.br/quanto-custa-viajar-para-disney/">Quanto custa viajar para a Disney em 2026</a>
+      <a href="https://www.assistcard.com/br/quanto-custa-viagem-cancun">Quanto custa viajar para Cancún</a>
+      <a href="https://viajeplanejado.com/quanto-custa-viajar-para-a-africa-do-sul-em-2026-guia-completo-de-gastos-em-cape-town-e-safari/">África do Sul em 2026: Cape Town e safári</a>
+      <a href="https://www.mundoasiatours.com/pt/quanto-custa-viajar-para-bangkok/">Quanto custa viajar para Bangkok</a>
+      <a href="https://dicasdouruguai.com.br/montevideu/quanto-custa-uma-viagem-para-montevideu/">Quanto custa uma viagem para Montevidéu</a>
+      <a href="https://www.blumarturismo.com.br/blog/quanto-custa-7-dias-nos-lencois-maranhenses/">Quanto custa 7 dias nos Lençóis Maranhenses</a>
+      <a href="https://vivabonito.com.br/quanto-custa-viajar-para-bonito-ms-em-2026-guia-atualizado/">Quanto custa viajar para Bonito em 2026</a>
+      <a href="https://www.grupodicas.com/quanto-custa-viajar-a-jericoacoara/">Quanto custa viajar a Jericoacoara</a>
+      <a href="https://meutudo.com.br/blog/quanto-custa-uma-viagem-para-fernando-de-noronha">Quanto custa Fernando de Noronha em 2026</a>
+      <a href="https://www.melhoresdestinos.com.br/quanto-custa-viajar-para-gramado-e-canela.html">Quanto custa viajar para Gramado e Canela</a>
+      <a href="https://chapada360.com.br/en/blog/quanto-custa-viajar-para-chapada-dos-veadeiros/">Quanto custa a Chapada dos Veadeiros</a>
+      <a href="https://discoverchapada.com.br/produto/pacote-na-chapada-diamantina-7-dias-2026/">Pacote de 7 dias na Chapada Diamantina</a>
+      <a href="https://www.kayak.com.br/packagetours/cataratas-do-igua%C3%A7u">Pacotes para Foz do Iguaçu (Kayak)</a>
+      <a href="https://travel.com.br/novidades/capitolio-mg/">Guia completo de Capitólio 2026</a>
+      <a href="https://www.grupodicas.com/quanto-custa-viajar-ao-paraty/">Quanto custa viajar a Paraty</a>
+      <a href="https://bonitour.com.br/quanto-custa-viajar-para/pantanal/">Quanto custa viajar para o Pantanal</a>
+      <a href="https://www.maladeaventuras.com/quanto-custa-viajar-para-o-jalapao/">Quanto custa viajar para o Jalapão em 2026</a>
+      <a href="https://www.c6bank.com.br/blog/viagem-para-maragogi">Viagem para Maragogi: quando ir e quanto custa</a>
+    </div>
+  </section>
+</div>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+/* ---------- Dados ---------- */
+const CAT = [["Passagem","--c1"],["Hospedagem","--c2"],["Alimentação","--c3"],["Passeios e ingressos","--c4"],["Transporte local","--c5"],["Seguro, taxas e vistos","--c6"]];
+const CONF = [1.2,2,1.6,1.5,1.5,1];
+const P5 = {BSB:[1,2,3],LEC:[1,2,3],IGU:[1,2,3],CAR:[1,2,3],BUS:[1,2,4],MCZ:[1,2,3],BRB:[1,2,3],BYO:[1,2,4],CGB:[3,4,6],PMW:[1,3,4],JJD:[1,3,5],FEN:[1,2,4],POA:[1,2,4],UYU:[1,3,4],MVD:[1,2,3],EZE:[1,2,5],BRC:[1,2,3],SCL:[1,2,3],CUZ:[2,3,4],CTG:[1,3,4],CUN:[1,2,4],MCO:[1,3,5],JFK:[1,2,3],LIS:[1,2,3],MAD:[1,2,3],FCO:[1,2,3],CPT:[1,2,3],BKK:[1,2,3]};
+const MN = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const MS = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const WD = ["dom","seg","ter","qua","qui","sex","sáb"];
+const D = [
+ {code:"BSB",city:"Chapada dos Veadeiros",country:"Goiás",region:"Brasil",fly:5,climate:3,cl:"Auge da seca",doc:"RG",
+  why:"Cachoeiras, Vale da Lua e cerrado. Voo até Brasília e 3h de estrada até Alto Paraíso.",
+  e:[600,525,700,250,700,125],i:[1200,1400,1200,700,900,150],
+  stay:"Alto Paraíso (mais restaurantes) ou São Jorge (colado ao parque nacional).",
+  tip:"Alugue carro em Brasília. Santa Bárbara tem limite diário e exige guia; reserve antes. As noites são frias.",
+  plan:["Voo até Brasília, carro até Alto Paraíso (cerca de 3h). Jantar na avenida principal.","Parque Nacional: trilha dos Saltos (quedas de 120 m e 80 m) e Corredeiras, saindo de São Jorge.","Vale da Lua pela manhã e Cachoeira Raizama. Pôr do sol no Jardim de Maytrea.","Mirante da Janela e Cachoeira do Abismo, com guia. É a trilha mais puxada da semana.","Bate-volta a Cavalcante: Cachoeira Santa Bárbara, no território Kalunga.","Cachoeiras Almécegas I e II e São Bento.","Cachoeira do Segredo ou dia leve em Loquinhas e na feirinha da vila.","Estrada até Brasília e voo de volta."]},
+ {code:"LEC",city:"Chapada Diamantina",country:"Bahia",region:"Brasil",fly:7,climate:3,cl:"Seco, trilhas boas",doc:"RG",
+  why:"Morro do Pai Inácio, poços azuis e grutas. Agosto é época boa para o Poço Encantado.",
+  e:[1000,525,500,700,350,125],i:[1400,1050,900,1700,300,150],
+  stay:"Lençóis, a vila histórica com a maioria das agências. Uma noite no Vale do Capão é opcional.",
+  tip:"Contrate guia credenciado, obrigatório em vários atrativos. O Buracão exige guia local.",
+  plan:["Voo até Salvador e ônibus ou carro até Lençóis (cerca de 6h).","Mucugezinho, Poço do Diabo, Gruta da Lapa Doce, Pratinha e pôr do sol no Morro do Pai Inácio.","Cachoeira da Fumaça por cima, trilha de 6 km saindo do Vale do Capão.","Poço Azul e Poço Encantado.","Dia inteiro na Cachoeira do Buracão, em Ibicoara.","Ribeirão do Meio e Cachoeira do Sossego, saindo de Lençóis.","Dia leve: Serrano, Salão de Areias Coloridas e compras na vila.","Retorno a Salvador e voo de volta."]},
+ {code:"IGU",city:"Foz do Iguaçu",country:"Paraná",region:"Brasil",fly:2,climate:2,cl:"Seco, menos água",doc:"RG",
+  why:"Cataratas dos dois lados, Itaipu e Parque das Aves. Em agosto as quedas têm menos volume.",
+  e:[900,700,700,450,100,50],i:[1300,1400,1000,600,150,50],
+  stay:"Avenida das Cataratas, perto dos parques, ou centro de Foz.",
+  tip:"Leve RG para o lado argentino. Quatro ou cinco dias bastam; dá para encurtar e gastar menos.",
+  plan:["Chegada. Pôr do sol no Marco das Três Fronteiras.","Cataratas do lado brasileiro, Macuco Safari e Parque das Aves.","Cataratas do lado argentino e passarela da Garganta do Diabo.","Usina de Itaipu e Refúgio Biológico.","Templo Budista e Mesquita. Jantar argentino em Puerto Iguazú.","Catamarã no lago de Itaipu ou compras no duty free.","Dia livre ou volta ao parque preferido.","Voo de volta."]},
+ {code:"CAR",city:"Capitólio",country:"Minas Gerais",region:"Brasil",fly:5,climate:2,cl:"Seco, lago mais baixo",doc:"RG",
+  why:"Cânions de Furnas, lancha e cachoeiras, a cerca de 5h de carro de São Paulo.",
+  e:[0,700,600,450,450,50],i:[0,1400,1100,900,550,50],
+  stay:"Centro de Capitólio (mais barato) ou Escarpas do Lago (mais estrutura).",
+  tip:"Vá de carro; tudo fica espalhado. Reserve a lancha para o fim de semana.",
+  plan:["Carro de São Paulo até Capitólio (cerca de 5h).","Lancha pelos Cânions de Furnas, Vale dos Tucanos e Cascatinha.","Mirante dos Cânions e Trilha do Sol.","Complexo da Lagoa Azul e cachoeiras da região.","Bate-volta à Serra da Canastra: Casca d'Anta pela parte baixa.","Complexo Paraíso Perdido e Poço Dourado.","Stand-up no lago e pôr do sol em Escarpas.","Volta para São Paulo."]},
+ {code:"BUS",city:"Paraty",country:"Rio de Janeiro",region:"Brasil",fly:5,climate:2,cl:"Ameno, mar frio",doc:"RG",
+  why:"Centro histórico, barco pelas ilhas e cachoeiras, de ônibus ou carro a partir de São Paulo.",
+  e:[0,525,560,315,300,50],i:[0,1400,1200,600,500,50],
+  stay:"Centro histórico (tudo a pé) ou Jabaquara (mais barato).",
+  tip:"O mar fica frio em agosto, mas os dias costumam ser secos. De carro fica fácil chegar a Trindade.",
+  plan:["Ônibus ou carro de São Paulo (cerca de 5h). Noite no centro histórico.","Escuna pelas ilhas da baía.","Trindade: piscina natural do Caixa d'Aço e Praia do Cepilho.","Estrada Paraty–Cunha: Poço do Tarzan, Tobogã e alambique.","Saco do Mamanguá, de barco, e trilha do Pão de Açúcar do Mamanguá.","Praia do Sono e Antigos, trilha a partir de Laranjeiras.","Paraty-Mirim e jantar no centro.","Volta para São Paulo."]},
+ {code:"MCZ",city:"Maceió e Maragogi",country:"Alagoas",region:"Brasil",fly:4,climate:2,cl:"Fim das chuvas",doc:"RG",
+  why:"Piscinas naturais, Rota Ecológica dos Milagres e praias de água morna. Agosto ainda pode ter pancadas de chuva.",
+  e:[1200,700,700,300,250,50],i:[1800,2100,1500,600,450,50],
+  stay:"Pajuçara ou Ponta Verde em Maceió, e duas noites em São Miguel dos Milagres ou Maragogi.",
+  tip:"As piscinas naturais dependem da maré baixa; monte os dias pela tábua de marés.",
+  plan:["Voo até Maceió. Orla de Pajuçara.","Piscinas naturais de Pajuçara de jangada.","Rota Ecológica: São Miguel dos Milagres e peixe-boi em Porto de Pedras.","Galés de Maragogi na maré baixa.","Praia do Gunga e Barra de São Miguel.","Praia do Francês.","Artesanato no Pontal da Barra e último jantar na orla.","Voo de volta."]},
+ {code:"BRB",city:"Lençóis Maranhenses",country:"Maranhão",region:"Brasil",fly:6,climate:3,cl:"Lagoas cheias",doc:"RG",
+  why:"Agosto está na janela de maio a setembro, com as lagoas cheias e pouca chuva.",
+  e:[1800,1400,900,1300,500,100],i:[2500,3000,1500,1900,900,200],
+  stay:"Barreirinhas nos primeiros dias e duas noites em Atins.",
+  tip:"Reserve os passeios de 4x4 com antecedência. Leve óculos escuros e roupa com proteção solar.",
+  plan:["Voo até São Luís e transfer até Barreirinhas (cerca de 4h).","Circuito da Lagoa Azul de 4x4, com pôr do sol nas dunas.","Circuito da Lagoa Bonita.","Lancha pelo Rio Preguiças: Vassouras, farol de Mandacaru e Caburé.","Mudança para Atins e almoço de camarão no Canto do Atins.","Dunas e lagoas a partir de Atins, com opção de kitesurf.","Volta a São Luís e centro histórico de azulejos.","Voo de volta."]},
+ {code:"BYO",city:"Bonito",country:"Mato Grosso do Sul",region:"Brasil",fly:3,climate:3,cl:"Seco, água cristalina",doc:"RG",
+  why:"Flutuação, grutas e cachoeiras. Os passeios são o maior gasto da viagem.",
+  e:[1200,600,700,1300,100,100],i:[2000,2100,1400,3000,400,100],
+  stay:"Centro de Bonito, perto das agências e restaurantes.",
+  tip:"Passeios têm vagas limitadas e são vendidos por agências locais. O Abismo Anhumas esgota primeiro.",
+  plan:["Voo até Bonito (ou Campo Grande e 4h de estrada).","Flutuação no Rio da Prata.","Gruta do Lago Azul e Balneário Municipal.","Buraco das Araras e cachoeiras da Estância Mimosa.","Flutuação no Rio Sucuri ou no Aquário Natural.","Abismo Anhumas ou cachoeiras da Boca da Onça.","Bote no Rio Formoso e tarde livre.","Voo de volta."]},
+ {code:"CGB",city:"Pantanal",country:"Mato Grosso",region:"Brasil",fly:4,climate:3,cl:"Seca, fauna à vista",doc:"RG",
+  why:"Agosto é o começo da melhor época para ver onça-pintada em Porto Jofre. Pousadas cobram pensão completa com passeios.",
+  e:[1300,3000,300,0,700,100],i:[1800,4200,300,900,700,100],
+  stay:"Pousadas com pensão completa na Transpantaneira e duas noites em Porto Jofre.",
+  tip:"Reserve cedo as pousadas de Porto Jofre e o barco para as onças; é a parte mais disputada.",
+  plan:["Voo até Cuiabá e estrada até Poconé, início da Transpantaneira.","Safári de carro e caminhada ao amanhecer, pássaros e jacarés.","Cavalgada, passeio de barco no rio e focagem noturna.","Mudança para Porto Jofre, parando nas pontes para ver bichos.","Barco pelo Rio Cuiabá atrás de onças-pintadas.","Segundo dia de barco, com lontras-gigantes e ariranhas.","Volta pela Transpantaneira até Cuiabá.","Voo de volta."]},
+ {code:"PMW",city:"Jalapão",country:"Tocantins",region:"Brasil",fly:3,climate:3,cl:"Seco, fervedouros limpos",doc:"RG",
+  why:"Fervedouros, dunas douradas e cachoeiras. É mais prático ir em expedição organizada saindo de Palmas.",
+  e:[650,1600,1000,700,400,50],i:[700,2400,1400,1300,1100,100],
+  stay:"Uma noite em Palmas e pousadas da expedição em Ponte Alta, Mateiros e São Félix.",
+  tip:"Feche a expedição com antecedência. De carro próprio, só com 4x4 e experiência em areia.",
+  plan:["Voo até Palmas e noite na cidade.","Saída da expedição: Cânion Sussuapara e pôr do sol na Pedra Furada.","Cachoeira da Velha e prainha do Rio Novo.","Dunas do Jalapão ao pôr do sol.","Fervedouros de São Félix, como Buritizinho e Bela Vista.","Cachoeira do Formiga e comunidade Mumbuca, do capim-dourado.","Volta a Palmas.","Voo de volta."]},
+ {code:"JJD",city:"Jericoacoara",country:"Ceará",region:"Brasil",fly:4,climate:3,cl:"Vento e sol",doc:"RG",
+  why:"Começo da temporada de vento, boa para kitesurf, com dias secos e pôr do sol na duna.",
+  e:[900,700,750,250,300,100],i:[1500,2100,1800,700,700,200],
+  stay:"Vila de Jericoacoara, perto da Rua Principal.",
+  tip:"Em agosto a areia voa com o vento. A taxa de turismo da vila é cobrada na entrada.",
+  plan:["Voo até Jericoacoara (ou Fortaleza e 5h de transfer). Pôr do sol na Duna.","Buggy leste: Lagoa Azul, Lagoa do Paraíso e Árvore da Preguiça.","Pedra Furada a pé na maré baixa e tarde de praia.","Passeio oeste: Guriú e Lagoa de Tatajuba.","Aula de kitesurf ou windsurf no Preá.","Dia inteiro nas redes da Lagoa do Paraíso.","Dia livre e forró à noite.","Voo de volta."]},
+ {code:"FEN",city:"Fernando de Noronha",country:"Pernambuco",region:"Brasil",fly:5,climate:3,cl:"Mar calmo, alta temporada",doc:"RG",
+  why:"A taxa de preservação custa cerca de R$ 106 por pessoa por dia e a pousada pesa muito.",
+  e:[1500,2100,1050,320,400,930],i:[4000,8400,2100,1270,1200,930],
+  stay:"Vila dos Remédios ou Floresta Nova, com pousada que inclua transfer.",
+  tip:"Pague a taxa online e agende a Praia do Atalaia no ICMBio assim que tiver as datas.",
+  plan:["Voo via Recife ou Natal. Pôr do sol no Forte do Boldró.","Ilha Tour para conhecer a ilha inteira.","Baía do Sancho e Baía dos Porcos pelos mirantes.","Barco dos golfinhos-rotadores e Praia do Leão.","Piscina natural do Atalaia, com agendamento.","Batismo de mergulho ou Planasub.","Praia da Conceição e forró no Bar do Cachorro.","Voo de volta."]},
+ {code:"POA",city:"Gramado e Canela",country:"Rio Grande do Sul",region:"Brasil",fly:4,climate:3,cl:"Frio de serra",doc:"RG",
+  why:"Inverno de verdade, fondue e vinícolas. O Festival de Cinema de agosto encarece a hospedagem.",
+  e:[420,890,1310,410,170,0],i:[700,2800,2200,800,900,50],
+  stay:"Centro de Gramado para fazer tudo a pé, ou Canela para gastar menos.",
+  tip:"Reserve cedo por causa do Festival de Cinema. A Maria Fumaça não sai todo dia.",
+  plan:["Voo até Porto Alegre e carro até Gramado (cerca de 2h).","Canela: Catedral de Pedra, Parque do Caracol e Castelinho.","Vale dos Vinhedos e passeio de Maria Fumaça.","Lago Negro e Snowland ou Mini Mundo. Fondue à noite.","Cambará do Sul: cânions Itaimbezinho e Fortaleza.","Nova Petrópolis e Aldeia do Imigrante.","Chocolates, Parque Knorr e compras.","Volta a Porto Alegre e voo."]},
+ {code:"UYU",city:"La Paz e Salar de Uyuni",country:"Bolívia",region:"América do Sul",fly:8,climate:2,cl:"Seco e gelado",doc:"RG",
+  why:"A opção internacional mais barata, com paisagens únicas, mas rústica e com noites abaixo de zero.",
+  e:[1300,400,300,250,200,50],i:[1600,800,500,400,600,100],
+  stay:"La Paz no bairro de Sopocachi. Em Uyuni, hotel perto da praça.",
+  tip:"A altitude passa de 3.600 m. Em agosto o Salar fica branco, sem o efeito espelho.",
+  plan:["Voo até La Paz via Santa Cruz. Descanso para aclimatar.","Teleféricos, Mercado das Bruxas e Calle Jaén.","Vale da Lua e ruínas de Tiwanaku.","Voo ou ônibus até Uyuni. Cemitério de Trens e Salar ao pôr do sol.","Dia inteiro no Salar: Ilha Incahuasi e fotos de perspectiva.","Volta a La Paz e tarde livre.","Copacabana e Ilha do Sol, no Lago Titicaca.","Voo de volta."]},
+ {code:"MVD",city:"Montevidéu e Punta",country:"Uruguai",region:"América do Sul",fly:3,climate:1,cl:"Frio e ventoso",doc:"RG + seguro",
+  why:"Voo curto, parrillas e vinhos Tannat. Agosto é inverno de verdade, mas com passagens baratas.",
+  e:[1500,700,770,200,100,130],i:[2000,1750,1400,800,200,150],
+  stay:"Pocitos ou Ciudad Vieja.",
+  tip:"Leve casaco forte. Os passeios a Colonia e Punta del Este saem mais baratos de ônibus.",
+  plan:["Chegada. Noite na Ciudad Vieja.","Feira de Tristán Narvaja e caminhada pela Rambla.","Mercado del Puerto, Teatro Solís e Palácio Salvo.","Bate-volta a Colonia del Sacramento.","Punta del Este e Casapueblo.","Visita a vinícola de Tannat nos arredores.","Pocitos e Parque Rodó.","Voo de volta."]},
+ {code:"EZE",city:"Buenos Aires",country:"Argentina",region:"América do Sul",fly:3,climate:1,cl:"Frio e cinza",doc:"RG + seguro",
+  why:"Voo curto, boa comida e muita atração gratuita. Funciona o ano todo, só não é o auge em agosto.",
+  e:[1400,1050,900,300,150,200],i:[2000,2800,1900,800,300,200],
+  stay:"Palermo (restaurantes e bares) ou Recoleta.",
+  tip:"Pague com cartão internacional para pegar o câmbio MEP. Compre o tango e o futebol antes.",
+  plan:["Chegada. Noite em San Telmo.","Feira de San Telmo e Caminito, em La Boca.","Recoleta: cemitério, Floralis Genérica e El Ateneo.","Palermo: bosques, Jardim Japonês e MALBA.","Delta do Tigre, de trem e barco.","Plaza de Mayo, Café Tortoni e Teatro Colón. Tango à noite.","Bate-volta de barco a Colonia ou Puerto Madero.","Voo de volta."]},
+ {code:"BRC",city:"Bariloche",country:"Argentina",region:"América do Sul",fly:5,climate:3,cl:"Neve",doc:"RG + seguro",
+  why:"Neve e lagos gastando menos que no Chile. Voos lotam em agosto. Faixa estimada a partir dos custos da Argentina.",
+  e:[2000,1200,1000,900,200,200],i:[2800,2400,1500,1700,400,200],
+  stay:"Centro ou hotel no caminho do Cerro Catedral.",
+  tip:"Alugue roupa de neve na cidade e compre o passe do Catedral online.",
+  plan:["Chegada. Centro Cívico e lojas de chocolate.","Cerro Catedral: esqui ou só neve.","Circuito Chico e teleférico do Cerro Campanario.","Cerro Otto e trenó em Piedras Blancas.","Caminho dos Sete Lagos até Villa La Angostura.","Segundo dia no Cerro Catedral.","Colônia Suíça e jantar de fondue.","Voo de volta."]},
+ {code:"SCL",city:"Santiago + neve",country:"Chile",region:"América do Sul",fly:4,climate:3,cl:"Temporada de esqui",doc:"RG",
+  why:"Cidade, vinícolas e um dia em Valle Nevado. Esqui completo soma cerca de R$ 2 mil por pessoa.",
+  e:[1500,1050,1100,1000,200,150],i:[2200,2100,1600,1250,200,150],
+  stay:"Providencia ou Lastarria, perto do metrô.",
+  tip:"Reserve transporte e roupa para a neve. A estrada de Cajón del Maipo pode fechar por neve.",
+  plan:["Chegada. Bairro Lastarria à noite.","Cerro San Cristóbal pelo funicular, Bellavista e La Chascona.","Valle Nevado ou Farellones.","Valparaíso e Viña del Mar.","Vinícola Concha y Toro. Sky Costanera à noite.","Cajón del Maipo, se a estrada estiver aberta.","La Moneda, Mercado Central e Cerro Santa Lucía.","Voo de volta."]},
+ {code:"CUZ",city:"Cusco e Machu Picchu",country:"Peru",region:"América do Sul",fly:8,climate:3,cl:"Estação seca",doc:"RG",
+  why:"Melhor época do ano para Machu Picchu. Ingresso, trem e ônibus somam boa parte do custo.",
+  e:[2800,850,700,1900,300,200],i:[3500,2100,1300,3400,500,200],
+  stay:"Cusco no bairro de San Blas, uma noite em Ollantaytambo e uma em Aguas Calientes.",
+  tip:"Compre ingresso de Machu Picchu e trem assim que definir a data; agosto esgota.",
+  plan:["Voo até Cusco via Lima. Descanso e chá de coca.","Cusco leve: Plaza de Armas, Qorikancha e San Blas.","Vale Sagrado: Pisac, Moray e Salineras de Maras. Noite em Ollantaytambo.","Trem até Aguas Calientes e termas.","Machu Picchu cedo e trem de volta a Cusco.","Montanha Colorida, saindo de madrugada (5.000 m).","Sacsayhuamán e Mercado San Pedro.","Voo de volta."]},
+ {code:"CTG",city:"Cartagena",country:"Colômbia",region:"América do Sul",fly:8,climate:2,cl:"Quente, chuvas curtas",doc:"RG",
+  why:"Caribe e centro histórico murado. Agosto já tem pancadas de chuva, mas ainda é praia.",
+  e:[2000,700,600,450,100,150],i:[2600,1750,1100,700,200,150],
+  stay:"Cidade Murada ou Getsemaní, mais barato e animado.",
+  tip:"Compre as Ilhas do Rosário com agência avaliada e leve dinheiro em espécie.",
+  plan:["Chegada. Passeio noturno pela Cidade Murada.","Centro histórico e Castelo de San Felipe.","Getsemaní e pôr do sol na muralha.","Barco às Ilhas do Rosário.","Playa Blanca, em Barú.","Vulcão de lama El Totumo.","Bocagrande e último jantar no centro.","Voo de volta."]},
+ {code:"CUN",city:"Cancún",country:"México",region:"América do Norte",fly:10,climate:1,cl:"Furacões e sargaço",doc:"Passaporte + visto",
+  why:"All-inclusive e cenotes. Agosto está no meio da temporada de furacões.",
+  e:[3500,1500,800,900,200,100],i:[4000,5500,400,2500,300,300],
+  stay:"Zona Hoteleira (all-inclusive) ou Playa del Carmen.",
+  tip:"Faça seguro que cubra cancelamento e veja a previsão de sargaço antes.",
+  plan:["Chegada. Tarde na Zona Hoteleira.","Catamarã até Isla Mujeres.","Chichén Itzá, cenote Ik Kil e Valladolid.","Parque Xcaret ou Xel-Há.","Ruínas de Tulum e cenotes Dos Ojos.","Playa del Carmen ou mergulho em Cozumel.","Dia de resort ou snorkel no MUSA.","Voo de volta."]},
+ {code:"MCO",city:"Orlando",country:"EUA",region:"América do Norte",fly:10,climate:1,cl:"Calor e temporais",doc:"Passaporte + visto",
+  why:"Parques cheios pelas férias americanas, calor forte e chuva quase toda tarde.",
+  e:[4500,2100,1300,4000,900,1200],i:[5500,3500,1800,4800,1000,1400],
+  stay:"Kissimmee ou International Drive, com carro alugado.",
+  tip:"Agende o visto já: a espera pela entrevista pode passar de meses.",
+  plan:["Chegada, carro e noite em Disney Springs.","Magic Kingdom.","EPCOT.","Universal Studios Florida.","Islands of Adventure.","Epic Universe.","Hollywood Studios ou outlets.","Voo de volta."]},
+ {code:"JFK",city:"Nova York",country:"EUA",region:"América do Norte",fly:11,climate:2,cl:"Verão quente",doc:"Passaporte + visto",
+  why:"O hotel em Manhattan é o que mais pesa. Agosto é quente e úmido.",
+  e:[4500,3500,1500,400,200,900],i:[5500,10500,4000,3500,500,1000],
+  stay:"Midtown ou Long Island City, no Queens, para gastar menos.",
+  tip:"Agende o visto já. Compre Broadway e observatórios antes.",
+  plan:["Chegada. Times Square à noite.","Central Park e Metropolitan Museum.","Memorial do 11 de Setembro, Ponte do Brooklyn e DUMBO.","Estátua da Liberdade. Broadway à noite.","High Line, Chelsea Market e Edge ao pôr do sol.","MoMA, Rockefeller Center e Quinta Avenida.","Williamsburg ou jogo de beisebol.","Voo de volta."]},
+ {code:"LIS",city:"Lisboa",country:"Portugal",region:"Europa",fly:11,climate:2,cl:"Verão, alta temporada",doc:"Passaporte",
+  why:"Idioma, comida e praias perto da cidade. Agosto é o mês mais caro e cheio.",
+  e:[5500,1600,1400,700,400,400],i:[7000,4500,2500,1200,600,450],
+  stay:"Baixa ou Chiado.",
+  tip:"O voo sai sábado à noite e chega domingo cedo. Compre a entrada do Palácio da Pena antes.",
+  plan:["Voo noturno saindo do Brasil.","Chegada. Baixa, Chiado e Praça do Comércio.","Belém: Jerónimos, Torre de Belém e pastéis.","Sintra: Palácio da Pena e Quinta da Regaleira.","Cascais e Cabo da Roca.","Alfama e Castelo de São Jorge. Fado à noite.","Bate-volta a Óbidos e Nazaré.","Voo de volta, com chegada à noite."]},
+ {code:"MAD",city:"Madri e Barcelona",country:"Espanha",region:"Europa",fly:11,climate:2,cl:"Muito quente",doc:"Passaporte",
+  why:"Duas cidades num roteiro, ligadas por trem rápido. Agosto é quente e muita loja local fecha.",
+  e:[5000,1200,850,300,450,200],i:[5500,3500,1750,1500,1000,750],
+  stay:"Centro de Madri (Sol ou Huertas) e Eixample em Barcelona.",
+  tip:"Compre a Sagrada Família e o trem AVE com antecedência.",
+  plan:["Voo noturno saindo do Brasil.","Chegada a Madri. Puerta del Sol e Plaza Mayor.","Museu do Prado, Retiro e Palácio Real.","Bate-volta a Toledo.","Trem AVE até Barcelona. Bairro Gótico.","Sagrada Família e Park Güell.","Barceloneta e Casa Batlló.","Voo de volta."]},
+ {code:"FCO",city:"Roma",country:"Itália",region:"Europa",fly:12,climate:2,cl:"Muito quente",doc:"Passaporte",
+  why:"Coliseu, Vaticano e comida italiana. Agosto é quente e o feriado de Ferragosto (15/8) fecha parte do comércio.",
+  e:[5500,1600,1100,400,200,200],i:[6500,3800,2200,800,400,300],
+  stay:"Monti ou Trastevere.",
+  tip:"Compre com horário marcado Coliseu, Museus Vaticanos e Galleria Borghese.",
+  plan:["Voo noturno saindo do Brasil.","Chegada. Trastevere à noite.","Coliseu, Fórum Romano e Palatino.","Museus Vaticanos, Capela Sistina e São Pedro.","Panteão, Fontana di Trevi, Piazza Navona e Escadaria da Praça de Espanha.","Bate-volta a Florença de trem.","Galleria Borghese e bairro Monti.","Voo de volta."]},
+ {code:"CPT",city:"Cidade do Cabo + safári",country:"África do Sul",region:"África",fly:9,climate:2,cl:"Ótimo para safári",doc:"Passaporte",
+  why:"Agosto é inverno seco, ideal para safári. Na Cidade do Cabo, dias frios e chuvosos.",
+  e:[5000,1500,1000,2500,800,200],i:[5500,3500,1500,4000,1300,200],
+  stay:"V&A Waterfront ou Sea Point. No Kruger, lodge ou camp do parque.",
+  tip:"Reserve safári e voo interno juntos. O bondinho da Table Mountain fecha com vento.",
+  plan:["Voo direto até a Cidade do Cabo.","Table Mountain e V&A Waterfront.","Boulders Beach, Cabo da Boa Esperança e Chapman's Peak.","Vinícolas de Stellenbosch e Franschhoek.","Voo até a região do Kruger e safári ao pôr do sol.","Safári de manhã e à tarde.","Último safári e voo até Joanesburgo.","Voo para São Paulo."]},
+ {code:"BKK",city:"Bangkok e Koh Samui",country:"Tailândia",region:"Ásia",fly:24,climate:1,cl:"Monção",doc:"Passaporte + vacina",
+  why:"Dia a dia barato, mas o voo come quase três dias da semana. Agosto é época de chuva.",
+  e:[6500,700,500,400,700,200],i:[9000,2100,1000,800,900,200],
+  stay:"Bangkok perto do rio ou do BTS. Em Koh Samui, Chaweng ou Lamai.",
+  tip:"Não recomendado para 7 dias. Exige certificado de febre amarela.",
+  plan:["Embarque no Brasil (mais de 20h com conexão).","Chegada a Bangkok à noite.","Grand Palace, Wat Pho e Wat Arun.","Mercado flutuante e Chinatown.","Voo até Koh Samui.","Parque marinho de Ang Thong.","Voo a Bangkok e embarque à noite.","Chegada em São Paulo."]}
+];
+
+/* ---------- Clima e temporada por mês ----------
+   seas: [mês inicial, mês final, nota (3 ótimo, 2 com ressalvas, 1 fraco), rótulo, explicação]
+   hi / lo: meses de alta e baixa temporada (preço de passagem e hospedagem) */
+const META = {
+ BSB:{why:"Cachoeiras, Vale da Lua e cerrado. Voo até Brasília e 3h de estrada até Alto Paraíso.",
+  tip:"Alugue carro em Brasília. Santa Bárbara tem limite diário de visitantes e exige guia; reserve antes.",
+  hi:[1,7],lo:[3,11],seas:[
+  [11,3,2,"Chuvas, cachoeiras cheias","Cachoeiras no volume máximo, mas trombas d'água podem fechar trilhas. Prefira os passeios de manhã."],
+  [4,4,3,"Fim das chuvas, tudo verde","Cachoeiras ainda cheias e trilhas já secas. É um dos melhores meses."],
+  [5,9,3,"Seca, céu limpo","Trilhas secas, água transparente e noites frias. É a alta temporada do parque."],
+  [10,10,2,"Calor e fim da seca","Muito calor, cachoeiras mais baixas e risco de queimadas no cerrado."]]},
+ LEC:{why:"Morro do Pai Inácio, poços azuis, grutas e a Cachoeira da Fumaça.",
+  tip:"Contrate guia credenciado, obrigatório em vários atrativos. O Buracão exige guia local.",
+  hi:[1,6,7,12],lo:[3,5,11],seas:[
+  [11,3,2,"Chuvas, cachoeiras cheias","A Fumaça e o Buracão ficam no volume máximo, mas chuvas fortes podem cancelar trilhas."],
+  [4,9,3,"Seca, luz no Poço Encantado","De abril a setembro o sol entra no Poço Encantado e no Poço Azul. Em junho, o São João lota a região."],
+  [10,10,3,"Seco e quente","Clima seco e menos gente; algumas cachoeiras ficam fracas."]]},
+ IGU:{why:"Cataratas dos dois lados da fronteira, Itaipu e Parque das Aves.",
+  tip:"Leve RG para o lado argentino. Quatro ou cinco dias bastam.",
+  hi:[1,7,12],lo:[3,5,8],seas:[
+  [12,3,3,"Cataratas cheias, muito calor","Época de mais água nas quedas, com calor forte e chuva à tarde."],
+  [4,5,3,"Ameno, bom volume","Temperatura agradável e ainda bastante água."],
+  [6,8,2,"Frio, menos água","Dias frios e quedas mais baixas; a vista continua bonita, mas impressiona menos."],
+  [9,11,3,"Primavera, volume subindo","As chuvas da primavera devolvem o volume às quedas."]]},
+ CAR:{why:"Cânions de Furnas, lancha e cachoeiras, a cerca de 5h de carro de São Paulo.",
+  tip:"Vá de carro; tudo fica espalhado. Reserve a lancha para o fim de semana.",
+  hi:[1,7,12],lo:[3,5,8],seas:[
+  [11,3,2,"Chuvas, passeios podem parar","Com chuva forte, os passeios nos cânions são suspensos por segurança. Deixe dias de folga no roteiro."],
+  [4,7,3,"Seco, lago cheio","Depois das chuvas o lago está alto e as cachoeiras ainda correm bem."],
+  [8,10,2,"Seco, lago baixo","O nível do lago cai e algumas cachoeiras quase secam."]]},
+ BUS:{why:"Centro histórico, barco pelas ilhas e cachoeiras, de ônibus ou carro a partir de São Paulo.",
+  tip:"De carro fica fácil chegar a Trindade e à estrada de Cunha. Em feriados, chegue cedo às praias.",
+  hi:[1,2,7,12],lo:[4,5,9,10],seas:[
+  [12,3,2,"Verão lotado, chuva à tarde","Mar quente e cidade cheia, com temporais quase todo fim de tarde. No Carnaval os preços disparam."],
+  [4,5,3,"Ameno e seco","Dias firmes, mar ainda morno e cidade tranquila. É a melhor época."],
+  [6,8,2,"Ameno, mar frio","Dias secos e frescos; o mar fica gelado para nadar."],
+  [9,11,2,"Primavera instável","Alternância de sol e garoa, com menos gente e preços menores."]]},
+ MCZ:{why:"Piscinas naturais, Rota Ecológica dos Milagres e praias de água morna.",
+  tip:"As piscinas naturais dependem da maré baixa; monte os dias pela tábua de marés.",
+  hi:[1,2,7,12],lo:[4,5,6,8],seas:[
+  [9,3,3,"Sol e mar calmo","Mar transparente e pouca chuva. De dezembro a fevereiro é alta temporada."],
+  [4,7,1,"Época de chuvas","Os meses mais chuvosos do litoral de Alagoas, com mar turvo nas piscinas naturais."],
+  [8,8,2,"Fim das chuvas","Ainda pode chover, mas os dias de sol aumentam."]]},
+ BRB:{why:"Dunas brancas com lagoas de água da chuva, entre Barreirinhas e Atins.",
+  tip:"Reserve os passeios de 4x4 com antecedência. Leve óculos escuros e roupa com proteção solar.",
+  hi:[7],lo:[3,4,11],seas:[
+  [1,4,1,"Chuvas, lagoas enchendo","As lagoas ainda estão rasas ou vazias e chove forte; parte dos circuitos alaga."],
+  [5,5,2,"Lagoas enchendo","As lagoas já têm água, mas ainda chove."],
+  [6,9,3,"Lagoas cheias","Melhor época: lagoas cheias e céu aberto. Julho é o mês mais cheio."],
+  [10,10,2,"Lagoas baixando","Ainda dá para nadar, mas as lagoas estão mais rasas."],
+  [11,12,1,"Lagoas secas","A maioria das lagoas seca e o passeio fica só nas dunas."]]},
+ BYO:{why:"Flutuação em rios cristalinos, grutas e cachoeiras.",
+  tip:"Passeios têm vagas limitadas e são vendidos por agências locais. O Abismo Anhumas esgota primeiro.",
+  hi:[1,7,12],lo:[3,5],seas:[
+  [12,2,2,"Chuvas, rios podem turvar","Calor e água boa, mas tempestades podem turvar os rios por um ou dois dias."],
+  [3,5,3,"Água limpa e calor","Fim das chuvas, rios transparentes e temperatura boa para flutuar."],
+  [6,8,3,"Seco, água fria","Visibilidade máxima, mas a água e as manhãs são frias; a roupa de neoprene ajuda."],
+  [9,11,3,"Calor, água cristalina","Rios transparentes e o calor de volta."]]},
+ CGB:{why:"A maior planície alagada do mundo, com onças-pintadas, ariranhas e aves. Pousadas cobram pensão completa com passeios.",
+  tip:"Reserve cedo as pousadas de Porto Jofre e o barco para as onças; é a parte mais disputada.",
+  hi:[7,8,9,10],lo:[12,1,2,3],seas:[
+  [12,3,1,"Cheia, estradas difíceis","Boa parte da Transpantaneira alaga e os bichos se espalham. Muitas pousadas reduzem passeios."],
+  [4,6,2,"Águas baixando","Paisagem verde e alagada; os animais começam a se concentrar."],
+  [7,10,3,"Seca, onças à vista","Melhor época para fauna. De agosto a outubro é o pico de onças em Porto Jofre."],
+  [11,11,2,"Fim da seca, muito calor","Ainda dá para ver bichos, mas o calor é forte e as chuvas começam."]]},
+ PMW:{why:"Fervedouros, dunas douradas e cachoeiras. É mais prático ir em expedição organizada saindo de Palmas.",
+  tip:"Feche a expedição com antecedência. De carro próprio, só com 4x4 e experiência em areia.",
+  hi:[7],lo:[3,4,11],seas:[
+  [11,3,1,"Chuvas, estradas ruins","Estradas de areia e terra ficam difíceis e os fervedouros perdem a transparência."],
+  [4,4,2,"Fim das chuvas","Paisagem verde, mas algumas estradas ainda estão ruins."],
+  [5,9,3,"Seca, fervedouros limpos","Melhor época: água transparente e estradas firmes."],
+  [10,10,2,"Calor e secura","Calor muito forte, mas ainda é seco."]]},
+ JJD:{why:"Dunas, lagoas e pôr do sol na duna, numa vila de ruas de areia.",
+  tip:"Pague a taxa de turismo da vila na entrada. Na época de vento forte, leve óculos para a areia.",
+  hi:[1,7,12],lo:[3,4,5],seas:[
+  [1,1,3,"Sol e vento","Fim da temporada de vento e muito sol. É alta temporada de férias."],
+  [2,2,2,"Começo das chuvas","As chuvas começam a aparecer, ainda com dias de sol."],
+  [3,5,1,"Época de chuvas","Os meses mais chuvosos do Ceará; algumas estradas de buggy alagam."],
+  [6,8,3,"Lagoas cheias, sol","Lagoas cheias depois das chuvas e o vento começando."],
+  [9,12,3,"Vento forte, ótimo para kite","Auge do vento para kitesurf e quase nenhuma chuva."]]},
+ FEN:{why:"Mar transparente, golfinhos e mirantes. A taxa de preservação e a pousada pesam muito.",
+  tip:"Pague a taxa online e agende a Praia do Atalaia no ICMBio assim que tiver as datas.",
+  hi:[1,7,12],lo:[4,5,6],seas:[
+  [8,2,3,"Seco, mar transparente","Pouca chuva e ótima visibilidade para mergulho. De dezembro a março há ondas no mar de dentro."],
+  [3,7,2,"Chuvas, mar agitado","Chuvas rápidas quase todo dia e menos visibilidade, com preços menores."]]},
+ POA:{why:"Serra gaúcha com fondue, vinícolas e os cânions de Cambará do Sul.",
+  tip:"A Maria Fumaça não sai todo dia; confira as datas. Reserve cedo no inverno e no Natal Luz.",
+  hi:[6,7,8,11,12],lo:[3,4,5],seas:[
+  [2,2,2,"Verão, cidade mais vazia","Calor ameno e cidade tranquila, sem as atrações de inverno."],
+  [3,5,3,"Outono ameno","Dias frescos, folhas mudando de cor e preços menores. Março é época de colheita da uva."],
+  [6,8,3,"Inverno, frio de serra","Temporada de fondue e lareira. Em agosto, o Festival de Cinema lota a cidade."],
+  [9,10,3,"Primavera","Clima agradável e menos gente que no inverno."],
+  [11,1,3,"Natal Luz","Desfiles e espetáculos de Natal de novembro a janeiro. Os ingressos esgotam."]]},
+ UYU:{why:"La Paz entre montanhas e o Salar de Uyuni, a maior planície de sal do mundo. Rústico e em altitude.",
+  tip:"A altitude passa de 3.600 m: descanse no primeiro dia. Leve roupa de frio em qualquer mês.",
+  hi:[7,8],lo:[2,3],seas:[
+  [12,3,2,"Chuvas, efeito espelho","A água da chuva vira um espelho no Salar, mas a Ilha Incahuasi fica inacessível e há cancelamentos."],
+  [4,5,3,"Seco, menos frio","Salar branco e seco, com noites frias mas suportáveis."],
+  [6,8,2,"Seco e gelado","Céu limpíssimo, mas noites abaixo de zero."],
+  [9,11,3,"Seco, menos frio","Salar seco e temperaturas melhores."]]},
+ MVD:{why:"Ciudad Vieja, parrillas, vinhos Tannat e bate-voltas a Colonia e Punta del Este.",
+  tip:"Os passeios a Colonia e Punta del Este saem mais baratos de ônibus.",
+  hi:[1,2,12],lo:[5,6,8,9],seas:[
+  [12,3,3,"Verão, praias","Temporada de praia; Punta del Este fica lotada em janeiro."],
+  [4,4,3,"Outono ameno","Clima agradável e preços já mais baixos."],
+  [5,5,2,"Esfriando","Dias frescos e ventosos."],
+  [6,8,1,"Frio e ventoso","Inverno de verdade, com vento forte do Rio da Prata."],
+  [9,10,2,"Primavera fresca","Ainda frio à noite, mas os dias melhoram."],
+  [11,11,3,"Primavera, dias longos","Clima bom antes da alta temporada."]]},
+ EZE:{why:"Voo curto, boa comida, tango e muita atração gratuita.",
+  tip:"Pague com cartão internacional para pegar o câmbio MEP. Compre o tango e o futebol antes.",
+  hi:[1,7],lo:[5,8],seas:[
+  [12,2,2,"Verão muito quente","Calor úmido acima de 30 °C; muitos portenhos saem de férias."],
+  [3,5,3,"Outono ameno","Temperatura agradável para andar a pé."],
+  [6,8,1,"Frio e cinza","Inverno com dias curtos e céu fechado."],
+  [9,11,3,"Primavera, jacarandás","Clima ameno, com os jacarandás floridos em outubro e novembro."]]},
+ BRC:{why:"Lagos, montanhas e chocolates. No inverno é destino de neve; no verão, de trilhas e lagos.",
+  tip:"Na temporada de neve, alugue roupa na cidade e compre o passe do Cerro Catedral online.",
+  hi:[7,8],lo:[4,5,10,11],seas:[
+  [12,3,3,"Verão, lagos e trilhas","Sem neve. Troque os dias no Cerro Catedral por trilhas, caiaque no Nahuel Huapi e praias de lago."],
+  [4,5,2,"Outono, entressafra","Bosques dourados e cidade vazia, mas sem neve e com dias frios."],
+  [6,9,3,"Neve","Temporada de esqui no Cerro Catedral. Julho é o mês mais cheio por causa das férias escolares."],
+  [10,11,2,"Primavera, entressafra","Neve só no alto e pistas fechando; bom para passear sem multidão."]]},
+ SCL:{why:"Cidade, vinícolas, Valparaíso e, no inverno, neve a uma hora do centro.",
+  tip:"Na neve, reserve transporte e roupa antes. A estrada de Cajón del Maipo pode fechar no inverno.",
+  hi:[7,8],lo:[4,5,10,11],seas:[
+  [12,2,2,"Verão quente e seco","Sem neve. Troque o dia em Valle Nevado por Cajón del Maipo e o Embalse El Yeso."],
+  [3,4,3,"Colheita da uva","Época da vindima nas vinícolas e temperatura agradável."],
+  [5,5,2,"Outono, sem neve","Clima fresco, ainda sem neve nas estações."],
+  [6,9,3,"Temporada de esqui","Valle Nevado, Farellones e La Parva abertos. Julho é o mês mais caro."],
+  [10,11,3,"Primavera","Clima ameno e montanha ainda nevada no alto."]]},
+ CUZ:{why:"Cusco, Vale Sagrado e Machu Picchu. Ingresso, trem e ônibus somam boa parte do custo.",
+  tip:"Compre o ingresso de Machu Picchu e o trem assim que definir a data; na estação seca eles esgotam.",
+  hi:[6,7,8],lo:[1,2,3,11],seas:[
+  [1,2,1,"Auge das chuvas","Muitas nuvens sobre Machu Picchu e risco de deslizamentos. A Trilha Inca fecha em fevereiro."],
+  [3,3,2,"Chuvas diminuindo","Ainda chove, mas com menos gente."],
+  [4,4,3,"Fim das chuvas, tudo verde","Paisagem verde, céu abrindo e menos lotação que no inverno."],
+  [5,9,3,"Estação seca","Melhor época, com céu aberto. De junho a agosto é alta temporada."],
+  [10,12,2,"Começo das chuvas","Chuvas à tarde e mais nuvens, com menos turistas."]]},
+ CTG:{why:"Caribe e centro histórico murado, com as Ilhas do Rosário a uma hora de barco.",
+  tip:"Compre as Ilhas do Rosário com agência avaliada e leve dinheiro em espécie.",
+  hi:[1,12],lo:[5,9,10],seas:[
+  [12,4,3,"Seco e ventilado","Melhor época, com brisa e mar calmo. Dezembro e janeiro são os mais caros."],
+  [5,9,2,"Quente, chuvas curtas","Pancadas de chuva rápidas e muito calor."],
+  [10,11,1,"Época mais chuvosa","Os meses mais chuvosos; o passeio às ilhas pode ser cancelado."]]},
+ CUN:{why:"All-inclusive, mar azul-turquesa, cenotes e ruínas maias.",
+  tip:"Veja a previsão de sargaço antes. Entre junho e novembro, faça seguro que cubra cancelamento por furacão.",
+  hi:[1,7,12],lo:[5,9,10],seas:[
+  [12,3,3,"Seco, mar azul","Melhor época, sem furacões e quase sem sargaço."],
+  [4,5,2,"Calor, começo do sargaço","Ainda é seco, mas o sargaço pode chegar às praias."],
+  [6,10,1,"Furacões e sargaço","Temporada de furacões, com pico entre agosto e outubro, e mais sargaço."],
+  [11,11,2,"Fim dos furacões","Risco menor de tempestade e preços ainda baixos."]]},
+ MCO:{why:"Disney, Universal e Epic Universe. Ingressos e carro são boa parte do custo.",
+  tip:"Agende o visto já: a espera pela entrevista pode passar de meses.",
+  hi:[1,7,12],lo:[2,5,9],seas:[
+  [1,4,3,"Ameno e seco","Clima agradável. Janeiro tem parques cheios de brasileiros em férias."],
+  [5,5,2,"Esquentando","Calor chegando e parques ainda tranquilos."],
+  [6,9,1,"Calor e temporais","Calor forte, chuva quase toda tarde, temporada de furacões e férias americanas."],
+  [10,10,2,"Fim das chuvas","Menos chuva e decoração de Halloween nos parques."],
+  [11,12,3,"Ameno, decoração de Natal","Clima agradável e parques decorados; o fim de dezembro lota."]]},
+ JFK:{why:"Museus, Broadway, Central Park e bairros para explorar a pé. O hotel em Manhattan é o que mais pesa.",
+  tip:"Agende o visto já. Compre Broadway e observatórios antes.",
+  hi:[6,7,12],lo:[1,2,3],seas:[
+  [1,2,1,"Inverno rigoroso","Frio abaixo de zero e neve, com os menores preços de hotel."],
+  [3,3,2,"Frio, fim do inverno","Ainda frio, mas os dias ficam mais longos."],
+  [4,6,3,"Primavera","Parques floridos e temperatura boa para andar."],
+  [7,8,2,"Verão quente","Calor úmido, mas a cidade cheia de eventos ao ar livre."],
+  [9,11,3,"Outono","Melhor época, com folhas coloridas no Central Park em outubro e novembro."],
+  [12,12,2,"Frio, luzes de Natal","Decoração de Natal e a árvore do Rockefeller, com preços altos."]]},
+ LIS:{why:"Idioma, comida, bondes e praias perto da cidade.",
+  tip:"O voo sai à noite e chega no dia seguinte cedo. Compre a entrada do Palácio da Pena antes.",
+  hi:[6,7,8,12],lo:[1,2,3,11],seas:[
+  [11,2,2,"Inverno ameno e chuvoso","Chuva frequente, mas temperatura amena e preços baixos."],
+  [3,6,3,"Primavera","Clima agradável e cidade florida. Em junho há as Festas de Santo António."],
+  [7,8,2,"Verão, lotado","Calor seco, cidade lotada e preços no máximo."],
+  [9,10,3,"Fim do verão","Mar ainda morno e menos turistas."]]},
+ MAD:{why:"Duas cidades num roteiro, ligadas por trem rápido: museus em Madri, Gaudí e praia em Barcelona.",
+  tip:"Compre a Sagrada Família e o trem AVE com antecedência.",
+  hi:[6,7,8,12],lo:[1,2,3,11],seas:[
+  [11,2,2,"Inverno frio","Madri fica fria; Barcelona, mais amena. Preços baixos."],
+  [3,6,3,"Primavera","Melhor época, com dias longos e temperatura boa."],
+  [7,8,2,"Muito quente","Calor acima de 35 °C em Madri, e parte do comércio local fecha em agosto."],
+  [9,10,3,"Outono ameno","Clima bom e mar ainda morno em Barcelona."]]},
+ FCO:{why:"Coliseu, Vaticano e comida italiana, com bate-volta de trem a Florença.",
+  tip:"Compre com horário marcado o Coliseu, os Museus Vaticanos e a Galleria Borghese.",
+  hi:[4,6,7,8,12],lo:[1,2,11],seas:[
+  [11,2,2,"Inverno ameno e chuvoso","Menos turistas e filas menores, com chuva frequente."],
+  [3,6,3,"Primavera","Melhor época. A Semana Santa no Vaticano lota a cidade."],
+  [7,8,2,"Muito quente","Calor forte; no Ferragosto (15/8) parte do comércio fecha."],
+  [9,10,3,"Outono","Clima agradável e menos gente que no verão."]]},
+ CPT:{why:"Cidade do Cabo, vinícolas e safári no Kruger numa só viagem.",
+  tip:"Reserve safári e voo interno juntos. O bondinho da Table Mountain fecha com vento.",
+  hi:[12,1,7],lo:[5,6],seas:[
+  [11,3,2,"Verão no Cabo, mato fechado","A Cidade do Cabo está no auge, mas no Kruger chove e a vegetação esconde os animais."],
+  [4,5,3,"Outono, bom para os dois","Clima agradável no Cabo e o safári começando a melhorar."],
+  [6,8,2,"Ótimo safári, Cabo frio","Melhor época para ver animais, mas a Cidade do Cabo tem dias frios e chuvosos."],
+  [9,10,3,"Primavera, os dois bons","Safári ainda ótimo e o Cabo com flores e baleias."]]},
+ BKK:{why:"Templos, comida de rua e ilhas. O dia a dia é barato, mas o voo come quase três dias.",
+  tip:"Não recomendado para viagens curtas. Exige certificado internacional de vacina contra febre amarela.",
+  hi:[12,1,7],lo:[5,6,9],seas:[
+  [1,2,3,"Seco e menos quente","Melhor época em Bangkok e em Koh Samui."],
+  [3,5,2,"Muito quente","Calor acima de 35 °C; em abril há o Songkran, o Ano-Novo tailandês."],
+  [6,9,1,"Monção em Bangkok","Chuva quase diária em Bangkok; Koh Samui sofre menos."],
+  [10,11,1,"Chuvas fortes em Koh Samui","Bangkok começa a secar, mas é a época mais chuvosa de Koh Samui."],
+  [12,12,2,"Bangkok seco, Samui chuvoso","Ótimo em Bangkok; Koh Samui ainda pode ter chuva."]]}
+};
+D.forEach(d=>Object.assign(d,META[d.code]));
+const REGIONS = ["Todas","Brasil","América do Sul","América do Norte","Europa","África","Ásia"];
+
+/* ---------- Datas e feriados ---------- */
+const dt = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const add = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const diff = (a,b) => Math.round((b-a)/864e5);
+const same = (a,b) => key(a)===key(b);
+const HOL = {
+ "2027-01-01":["Confraternização Universal","n"],"2027-02-08":["Carnaval","f"],"2027-02-09":["Carnaval","f"],"2027-02-10":["Quarta-feira de Cinzas","f"],
+ "2027-03-26":["Sexta-feira Santa","n"],"2027-04-21":["Tiradentes","n"],"2027-05-01":["Dia do Trabalho","n"],"2027-05-27":["Corpus Christi","f"],
+ "2027-09-07":["Independência","n"],"2027-10-12":["Nossa Senhora Aparecida","n"],"2027-11-02":["Finados","n"],"2027-11-15":["Proclamação da República","n"],
+ "2027-11-20":["Consciência Negra","n"],"2027-12-25":["Natal","n"],"2028-01-01":["Confraternização Universal","n"]
+};
+const hol = d => HOL[key(d)];
+const isWork = d => { const w=d.getDay(); return w>0 && w<6 && !hol(d); };
+const restDay = d => d.getDay()===0 || !!hol(d);
+const validStart = d => isWork(d) && !restDay(add(d,1)) && !restDay(add(d,2));
+const fd = d => `${WD[d.getDay()]} ${d.getDate()}/${MS[d.getMonth()]}`;
+
+/* Emendas de feriado escolhidas à mão (respeitam a regra de início das férias) */
+const WIN = {
+ 1:[{t:"Ano-Novo",a:"2027-01-01",b:"2027-01-10",va:"2027-01-04",vb:"2027-01-08",note:"O 1º de janeiro cai numa sexta. Com 5 dias de férias na semana seguinte, a folga vai de sexta 1 a domingo 10."}],
+ 2:[{t:"Carnaval",a:"2027-02-13",b:"2027-02-20",va:"2027-02-10",vb:"2027-02-24",note:"Usa o bloco de 15 dias de férias do Carnaval, com a viagem depois do Carnaval no Rio. A folga vai de sábado 6 a quarta 24."}],
+ 3:[{t:"Páscoa",a:"2027-03-26",b:"2027-04-04",va:"2027-03-29",vb:"2027-04-02",note:"A Sexta-feira Santa abre a folga e as férias cobrem a semana seguinte: 10 dias livres com 5 de férias."}],
+ 4:[{t:"Tiradentes",a:"2027-04-21",b:"2027-04-26",va:"2027-04-22",vb:"2027-04-26",note:"Tiradentes cai na quarta 21. Férias de quinta a segunda gastam só 3 dias de trabalho e rendem 6 dias livres."}],
+ 5:[{t:"Corpus Christi",a:"2027-05-27",b:"2027-06-06",va:"2027-05-31",vb:"2027-06-04",need:["2027-05-28"],note:"Corpus Christi (quinta 27) é ponto facultativo. Se a empresa liberar a sexta 28, 5 dias de férias rendem 11 de folga."}],
+ 9:[{t:"Independência",a:"2027-09-04",b:"2027-09-12",va:"2027-09-08",vb:"2027-09-12",need:["2027-09-06"],note:"O 7 de Setembro cai na terça. As férias não podem começar na segunda 6, véspera do feriado, então começam na quarta 8. Se a empresa emendar a segunda, a folga vai de sábado 4 a domingo 12."}],
+ 10:[{t:"N. Sra. Aparecida",a:"2027-10-09",b:"2027-10-17",va:"2027-10-13",vb:"2027-10-17",need:["2027-10-11"],note:"O feriado de 12 de outubro cai na terça. Férias de quarta 13 a domingo 17; com a emenda da segunda 11, a folga vai de sábado 9 a domingo 17."}],
+ 11:[{t:"Proclamação",a:"2027-11-06",b:"2027-11-15",va:"2027-11-08",vb:"2027-11-12",note:"O 15 de novembro cai numa segunda: 5 dias de férias rendem 10 de folga."},
+     {t:"Finados",a:"2027-10-30",b:"2027-11-07",va:"2027-11-03",vb:"2027-11-07",need:["2027-11-01"],note:"Finados cai na terça 2. Férias de quarta 3 a domingo 7; com a emenda da segunda 1, a folga vai de sábado 30/out a domingo 7."}],
+ 12:[{t:"Natal",a:"2027-12-18",b:"2027-12-26",va:"2027-12-20",vb:"2027-12-24",note:"O Natal cai num sábado. Férias de segunda 20 a sexta 24 rendem 9 dias livres. É alta temporada: compre cedo."},
+     {t:"Réveillon",a:"2027-12-25",b:"2028-01-02",va:"2027-12-27",vb:"2027-12-31",note:"O Ano-Novo de 2028 cai num sábado. Férias de segunda 27 a sexta 31 rendem 9 dias livres, com a virada no destino."}]
+};
+function mkWin(o){ return {kind:"hol",t:o.t,a:dt(o.a),b:dt(o.b),va:dt(o.va),vb:dt(o.vb),need:(o.need||[]).map(dt),unc:[],note:o.note}; }
+function regOpt(a,b,dur){
+  const need=[]; for(let d=new Date(a); d<=b; d=add(d,1)) if(isWork(d)) need.push(d);
+  if(!need.length) return null;
+  const last=need[need.length-1]; let best=null;
+  for(let s=add(a,-4); s<=last; s=add(s,1)){
+    if(!validStart(s)) continue;
+    const vb = diff(s,last)>=4 ? last : add(s,4);
+    const unc = need.filter(x=>x<s);
+    const len = diff(s,vb)+1;
+    const sc = len + 3*unc.length + (s<a?0.5:0);
+    if(!best || sc<best.sc) best={s,vb,unc,len,sc};
+  }
+  if(!best) return null;
+  const o={kind:"reg",a,b,va:best.s,vb:best.vb,need:[],unc:best.unc};
+  const inside=[]; for(let d=new Date(o.va); d<=o.vb; d=add(d,1)) if(hol(d)) inside.push(`${hol(d)[0]} (${fd(d)})`);
+  const parts=[];
+  parts.push(dur==="7" ? (same(o.va,add(a,2)) && best.len===5 ? "Férias de segunda a sexta." : `Férias de ${fd(o.va)} a ${fd(o.vb)}.`)
+                       : (same(o.va,a) && best.len===5 ? "Férias de quarta a domingo: 5 dias corridos, só 3 de trabalho." : `Férias de ${fd(o.va)} a ${fd(o.vb)}.`));
+  if(o.va<a) parts.push("Pela regra de início das férias, elas precisam começar antes da viagem.");
+  if(inside.length) parts.push(`${inside.join(" e ")} cai dentro das férias e não rende dia extra.`);
+  if(o.unc.length) parts.push(`Sem emenda, ${o.unc.map(fd).join(" e ")} continua${o.unc.length>1?"m":""} sendo dia de trabalho.`);
+  o.note=parts.join(" ");
+  return o;
+}
+const OPTC={};
+function opts(m,dur){
+  const k=m+"-"+dur; if(OPTC[k]) return OPTC[k];
+  const out=(WIN[m]||[]).map(mkWin);
+  for(let d=new Date(2027,m-1,1); d.getMonth()===m-1; d=add(d,1)){
+    let o=null;
+    if(dur==="7" && d.getDay()===6) o=regOpt(d,add(d,7),dur);
+    if(dur==="5" && d.getDay()===3) o=regOpt(d,add(d,4),dur);
+    if(!o) continue;
+    if(m===2 && o.b>=dt("2027-02-06") && o.a<=dt("2027-02-24")) continue; // não colide com o bloco do Carnaval
+    out.push(o);
+  }
+  return OPTC[k]=out;
+}
+const optLabel = o => o.kind==="hol" ? `★ ${o.t}: ${fd(o.a)} a ${fd(o.b)}` : `${fd(o.a)} a ${fd(o.b)}`;
+const vacDays = o => diff(o.va,o.vb)+1;
+function workUsed(o){ let n=0; for(let d=new Date(o.va); d<=o.vb; d=add(d,1)) if(isWork(d)) n++; return n; }
+function folga(o){
+  const free = d => !isWork(d) || (d>=o.va && d<=o.vb) || o.need.some(x=>same(x,d));
+  let s=new Date(o.va); while(free(add(s,-1))) s=add(s,-1);
+  let e=new Date(o.vb); while(free(add(e,1))) e=add(e,1);
+  return {s,e,n:diff(s,e)+1};
+}
+
+/* ---------- Estado ---------- */
+const S = {month:8, dur:"7", opt:0, prof:"e", mode:"casal", budget:0, region:"Todas", sort:"price"};
+try{ Object.assign(S, JSON.parse(localStorage.getItem("v27")||"{}")); }catch(e){}
+function save(){ try{ localStorage.setItem("v27", JSON.stringify(S)); }catch(e){} }
+const cur = () => { const L=opts(S.month,S.dur); return L[S.opt] || L[0]; };
+const nights = () => diff(cur().a, cur().b);
+
+/* ---------- Clima ---------- */
+const inR = (m,f,t) => f<=t ? (m>=f && m<=t) : (m>=f || m<=t);
+const seg = (d,m) => d.seas.find(s=>inR(m,s[0],s[1])) || d.seas[0];
+const score = (d,m) => seg(d,m)[2];
+function setMonthFields(){ D.forEach(d=>{ const s=seg(d,S.month); d.climate=s[2]; d.cl=s[3]; d.mnote=s[4]; }); }
+const bestMonths = d => { const L=[]; for(let m=1;m<=12;m++) if(score(d,m)===3) L.push(MS[m-1]); return L; };
+
+/* ---------- Cálculo ---------- */
+const r50 = n => Math.round(n/50)*50;
+const pfRaw = (d,m) => d.hi.includes(m)?1.25 : d.lo.includes(m)?0.85 : 1;
+const pf = (d,m) => pfRaw(d,m)/pfRaw(d,8);
+function items(d,p,m=S.month,N=nights()){
+  const b = p==="e"? d.e : p==="i"? d.i : d.i.map((v,k)=>v*CONF[k]);
+  const f=(N+1)/8, q=pf(d,m);
+  const sc=[q, q*N/7, f, 1+(f-1)*.6, 1+(f-1)*.6, d.code==="FEN"? f : 1+(f-1)*.4];
+  return b.map((v,k)=>r50(v*sc[k]));
+}
+const sum = a => a.reduce((x,y)=>x+y,0);
+const pp = (d,p=S.prof) => sum(items(d,p));
+const mult = () => S.mode==="casal"?2:1;
+const lost = d => d.fly<=4?1:d.fly<=8?1.5:d.fly<=12?2:3.5;
+const useful = d => Math.max(.5, nights()+1-lost(d));
+const far = d => nights()<=5 && d.fly>=9;
+const BRL = n => "R$ " + Math.round(n).toLocaleString("pt-BR");
+const K = n => n>=1000 ? "R$ "+(n/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil" : BRL(n);
+const col = k => `var(${CAT[k][1]})`;
+const PROF = {e:"econômico",i:"intermediário",c:"confortável"};
+const NOW = 2026*12+9; // outubro de 2026
+const saveMonths = m => Math.max(1, 2027*12+(m-1)-NOW);
+const mAbs = a => `${MS[a%12]}/${Math.floor(a/12)}`;
+function when(m,from,to){ // meses antes da viagem
+  const t=2027*12+(m-1), a1=t-from, a2=t-to;
+  if(a2<=NOW) return "Já";
+  if(a1<=NOW) return `Já (até ${mAbs(a2)})`;
+  return a1===a2 ? mAbs(a1) : Math.floor(a1/12)===Math.floor(a2/12) ? `${MS[a1%12]} a ${mAbs(a2)}` : `${mAbs(a1)} a ${mAbs(a2)}`;
+}
+
+function filtered(){ return D.filter(d => (S.region==="Todas"||d.region===S.region) && (!S.budget || pp(d)<=S.budget)); }
+function sorted(list){
+  const s=S.sort;
+  return list.slice().sort((a,b)=> s==="price"? pp(a)-pp(b)
+    : s==="climate"? (b.climate-a.climate)||(pp(a)-pp(b))
+    : s==="day"? pp(a)/useful(a)-pp(b)/useful(b)
+    : a.fly-b.fly);
+}
+
+/* ---------- Tooltip ---------- */
+const tip=document.getElementById("tip");
+function showTip(e,html){ tip.innerHTML=html; tip.hidden=false; const x=Math.min(e.clientX+14, innerWidth-tip.offsetWidth-8); const y=Math.min(e.clientY+14, innerHeight-tip.offsetHeight-8); tip.style.left=x+"px"; tip.style.top=y+"px"; }
+function hideTip(){ tip.hidden=true; }
+function tipHtml(d){ const it=items(d,S.prof).map(v=>v*mult()); return `<b>${d.city}</b><br>`+CAT.map((c,k)=>`${c[0]}: ${BRL(it[k])}`).join("<br>")+`<br><b>Total: ${BRL(sum(it))}</b>`; }
+
+/* ---------- Controles ---------- */
+const $ = id => document.getElementById(id);
+const regSel=$("region");
+REGIONS.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; regSel.appendChild(o); });
+["month","pl-month"].forEach(id=>{ const s=$(id); MN.forEach((n,i)=>{ const o=document.createElement("option"); o.value=i+1; o.textContent=n[0].toUpperCase()+n.slice(1)+" de 2027"; s.appendChild(o); }); });
+function setMonth(m){ S.month=+m; S.opt=0; save(); update(); }
+function setDur(v){ if(S.dur===v) return; S.dur=v; S.opt=0; save(); update(); }
+function setOpt(i){ S.opt=+i; save(); update(); }
+$("month").addEventListener("change",e=>setMonth(e.target.value));
+$("pl-month").addEventListener("change",e=>setMonth(e.target.value));
+$("opt").addEventListener("change",e=>setOpt(e.target.value));
+$("pl-opt").addEventListener("change",e=>setOpt(e.target.value));
+["durSeg","pl-dur"].forEach(id=>$(id).addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setDur(b.dataset.d); }));
+$("profSeg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b){ S.prof=b.dataset.p; save(); update(); } });
+$("modeSeg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b){ S.mode=b.dataset.m; save(); update(); } });
+$("budget").addEventListener("change",e=>{ S.budget=+e.target.value; save(); update(); });
+regSel.addEventListener("change",e=>{ S.region=e.target.value; save(); update(); });
+$("sort").addEventListener("change",e=>{ S.sort=e.target.value; save(); renderBoard(); });
+
+function syncControls(){
+  const L=opts(S.month,S.dur); if(!L[S.opt]) S.opt=0;
+  document.querySelectorAll("#durSeg button, #pl-dur button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===S.dur));
+  document.querySelectorAll("#profSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===S.prof));
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===S.mode));
+  $("month").value=$("pl-month").value=String(S.month);
+  const html=L.map((o,i)=>`<option value="${i}">${optLabel(o)}</option>`).join("");
+  $("opt").innerHTML=$("pl-opt").innerHTML=html;
+  $("opt").value=$("pl-opt").value=String(S.opt);
+  $("budget").value=String(S.budget); regSel.value=S.region; $("sort").value=S.sort;
+  $("sort").options[1].textContent=`Melhor clima em ${MN[S.month-1]}`;
+}
+
+/* ---------- Meses ---------- */
+function renderMonths(){
+  const base=D.filter(d=>S.region==="Todas"||d.region===S.region);
+  $("months").innerHTML=MN.map((n,i)=>{
+    const m=i+1, g=base.filter(d=>score(d,m)===3).length, w=WIN[m];
+    return `<button type="button" class="mbtn" data-m="${m}" aria-pressed="${m===S.month}" aria-label="${n}: ${g} destinos no melhor momento">
+      <b>${MS[i]}</b><span class="num">${g} ótimos</span><span class="mb"><i style="width:${base.length?g/base.length*100:0}%"></i></span><span class="fh">${w?w.map(x=>x.t).join(" · ").replace("N. Sra. Aparecida","Aparecida").replace("Proclamação","Procl."):""}</span></button>`;
+  }).join("");
+  $("months").querySelectorAll(".mbtn").forEach(b=>b.addEventListener("click",()=>setMonth(b.dataset.m)));
+}
+
+/* ---------- Mapa de calor ---------- */
+function starMonth(d){
+  const mx=Math.max(...Array.from({length:12},(_,i)=>score(d,i+1)));
+  let best=null; for(let m=1;m<=12;m++){ if(score(d,m)!==mx) continue; const v=sum(items(d,"e",m,7)); if(!best||v<best.v) best={m,v}; }
+  return best.m;
+}
+function renderHeat(){
+  const L=D.filter(d=>S.region==="Todas"||d.region===S.region);
+  const head=`<thead><tr><th></th>${MS.map((x,i)=>`<th class="${i+1===S.month?"on":""}">${x}</th>`).join("")}</tr></thead>`;
+  const body=L.map(d=>{ const st=starMonth(d);
+    return `<tr><th scope="row">${d.city}</th>${MS.map((x,i)=>{ const m=i+1, s=seg(d,m);
+      return `<td class="${m===S.month?"on":""}"><button type="button" class="c-${s[2]}" data-code="${d.code}" data-m="${m}" aria-label="${d.city} em ${MN[i]}: ${s[3]}">${m===st?"★":""}</button></td>`; }).join("")}</tr>`;
+  }).join("");
+  $("heat").innerHTML=head+`<tbody>${body}</tbody>`;
+  $("heat").querySelectorAll("button").forEach(b=>{
+    const d=D.find(x=>x.code===b.dataset.code), m=+b.dataset.m, s=seg(d,m);
+    b.addEventListener("mousemove",e=>showTip(e,`<b>${d.city} · ${MN[m-1]}</b><br>${s[3]}<br>${BRL(sum(items(d,S.prof,m,7))*mult())} ${S.mode==="casal"?"o casal":"por pessoa"}, 7 noites`));
+    b.addEventListener("mouseleave",hideTip);
+    b.addEventListener("click",()=>{ hideTip(); setMonth(m); openDest(d.code); });
+  });
+}
+
+/* ---------- Resumo ---------- */
+function renderSummary(list){
+  const el=$("summary");
+  if(!list.length){ el.innerHTML=`<div class="tile" style="grid-column:1/-1"><span class="k">Nenhum destino</span><span class="s">Nenhum destino cabe nesse filtro. Aumente o teto ou troque a região.</span></div>`; return; }
+  const cheap=list.slice().sort((a,b)=>pp(a)-pp(b))[0];
+  const best=list.filter(d=>d.climate===3).sort((a,b)=>pp(a)-pp(b))[0] || cheap;
+  const unit=S.mode==="casal"?"o casal":"por pessoa", mn=MN[S.month-1], sm=saveMonths(S.month);
+  el.innerHTML=`
+   <div class="tile"><span class="k">Destinos no filtro</span><span class="v num">${list.length} <small style="font-size:16px;color:var(--muted)">de ${D.length}</small></span><span class="s">${list.filter(d=>d.climate===3).length} no melhor momento em ${mn}</span></div>
+   <div class="tile"><span class="k">Mais barato em ${mn}</span><span class="v">${cheap.city}</span><span class="s num">${BRL(pp(cheap)*mult())} ${unit}</span></div>
+   <div class="tile dark"><span class="k">Melhor custo-benefício</span><span class="v">${best.city}</span><span class="s num">${best.climate===3?best.cl:"Melhor opção do filtro"} · ${BRL(pp(best)*mult())} ${unit}</span></div>
+   <div class="tile"><span class="k">Guardar por mês</span><span class="v num">${BRL(pp(best)*2/sm)}</span><span class="s">para ${best.city} a dois, ${sm} ${sm===1?"mês":"meses"} até a viagem</span></div>`;
+}
+
+/* ---------- Barras empilhadas ---------- */
+function niceMax(v){ const st=[5000,10000,15000,20000,30000,40000,50000,60000,80000,100000]; return st.find(s=>s>=v)||Math.ceil(v/20000)*20000; }
+function renderBars(list){
+  const L=list.slice().sort((a,b)=>pp(a)-pp(b));
+  const box=$("hbars"), ax=$("axis");
+  if(!L.length){ box.innerHTML=`<div class="empty">Nenhum destino no filtro.</div>`; ax.innerHTML=""; return; }
+  const max=niceMax(Math.max(...L.map(d=>pp(d)*mult())));
+  const bl = S.budget ? S.budget*mult()/max*100 : null;
+  box.innerHTML=L.map(d=>{
+    const it=items(d,S.prof).map(v=>v*mult()), tot=sum(it);
+    return `<button type="button" class="hb" data-code="${d.code}" aria-label="${d.city}: ${BRL(tot)}">
+      <span class="name"><small>${d.code}</small>${d.city}</span>
+      <span class="track"><span class="stack" style="width:${tot/max*100}%">${it.map((v,k)=>`<i style="width:${v/tot*100}%;background:${col(k)}"></i>`).join("")}</span>${bl!==null&&bl<=100?`<span class="budgetline" style="left:${bl}%"></span>`:""}</span>
+      <span class="val">${K(tot)}</span></button>`;
+  }).join("");
+  ax.innerHTML=`<span></span><span class="ticks">${[0,.25,.5,.75,1].map(f=>`<span style="left:${f*100}%">${f===0?"R$ 0":K(max*f)}</span>`).join("")}</span><span></span>`;
+  box.querySelectorAll(".hb").forEach(b=>{
+    const d=D.find(x=>x.code===b.dataset.code);
+    b.addEventListener("mousemove",e=>showTip(e,tipHtml(d)));
+    b.addEventListener("mouseleave",hideTip);
+    b.addEventListener("click",()=>openDest(d.code));
+  });
+  $("catLegend").innerHTML=CAT.map((c,k)=>`<span><i style="background:${col(k)}"></i>${c[0]}</span>`).join("")+(S.budget?`<span><i class="ln"></i>Teto escolhido</span>`:"");
+}
+
+/* ---------- Custo × clima ---------- */
+function renderLanes(list){
+  $("lanesTitle").textContent=`Custo × clima em ${MN[S.month-1]}`;
+  const el=$("lanes");
+  if(!list.length){ el.innerHTML=`<div class="empty">Nenhum destino no filtro.</div>`; return; }
+  const max=niceMax(Math.max(...list.map(d=>pp(d)*mult())));
+  const cls={3:"c-3",2:"c-2",1:"c-1"}, lab={3:"Ótimo",2:"Bom",1:"Fraco"};
+  let html="";
+  [3,2,1].forEach(c=>{
+    const L=list.filter(d=>d.climate===c).sort((a,b)=>pp(a)-pp(b));
+    const rows=[]; const pos=L.map(d=>{ const x=pp(d)*mult()/max*100; let r=0; while(rows[r]!==undefined && x-rows[r]<9) r++; rows[r]=x; return {d,x,r}; });
+    const h=Math.max(1,rows.length)*26+14;
+    html+=`<div class="lane"><span class="lab ${cls[c]}">${lab[c]}</span><div class="field" style="height:${h}px">${pos.map(p=>`<button type="button" class="dot" data-code="${p.d.code}" style="left:clamp(22px,${p.x}%,calc(100% - 22px));top:${7+p.r*26}px" aria-label="${p.d.city}: ${BRL(pp(p.d)*mult())}">${p.d.code}</button>`).join("")}</div></div>`;
+  });
+  html+=`<div class="laneaxis"><span></span><span class="axis" style="display:block;margin:0"><span class="ticks" style="display:block">${[0,.25,.5,.75,1].map(f=>`<span style="left:${f*100}%">${f===0?"R$ 0":K(max*f)}</span>`).join("")}</span></span></div>`;
+  el.innerHTML=html;
+  el.querySelectorAll(".dot").forEach(b=>{
+    const d=D.find(x=>x.code===b.dataset.code);
+    b.addEventListener("mousemove",e=>showTip(e,`<b>${d.city}</b><br>${d.cl}<br>${BRL(pp(d)*mult())} ${S.mode==="casal"?"o casal":"por pessoa"}`));
+    b.addEventListener("mouseleave",hideTip);
+    b.addEventListener("click",()=>openDest(d.code));
+  });
+}
+
+/* ---------- Composição e custo por dia ---------- */
+function renderComp(list){
+  const bar=$("compBar"), ls=$("compList");
+  if(!list.length){ bar.innerHTML=""; ls.innerHTML=""; $("compNote").textContent=""; return; }
+  const tot=CAT.map((c,k)=>sum(list.map(d=>items(d,S.prof)[k]))), all=sum(tot);
+  bar.innerHTML=tot.map((v,k)=>`<i style="width:${v/all*100}%;background:${col(k)}" title="${CAT[k][0]}"></i>`).join("");
+  ls.innerHTML=tot.map((v,k)=>`<div><span><span class="sw" style="background:${col(k)}"></span>${CAT[k][0]}</span><b>${Math.round(v/all*100)}%</b></div>`).join("");
+  const top=tot.indexOf(Math.max(...tot));
+  $("compNote").textContent=`Média dos ${list.length} destinos do filtro. ${CAT[top][0]} é o maior gasto, com ${Math.round(tot[top]/all*100)}% do total.`;
+}
+function renderPerDay(list){
+  const el=$("perDay");
+  if(!list.length){ el.innerHTML=""; return; }
+  const L=list.map(d=>({d,v:pp(d)*mult()/useful(d)})).sort((a,b)=>a.v-b.v).slice(0,10);
+  const max=Math.max(...L.map(x=>x.v));
+  el.innerHTML=L.map(x=>`<li><span class="cd">${x.d.code}</span><span class="lab"><span>${x.d.city}</span><span class="tr"><i style="width:${x.v/max*100}%"></i></span></span><span class="meta">${BRL(x.v)}/dia<br><small>${useful(x.d).toLocaleString("pt-BR")} dias úteis</small></span></li>`).join("");
+}
+
+/* ---------- Cards ---------- */
+function costTable(d){
+  const P=["e","i","c"], V=P.map(p=>items(d,p).map(v=>v*mult()));
+  return `<div class="tscroll"><table><thead><tr><th>Item ${S.mode==="casal"?"(casal)":"(por pessoa)"}</th>${P.map(p=>`<th class="${p===S.prof?"on":""}">${PROF[p][0].toUpperCase()+PROF[p].slice(1)}</th>`).join("")}</tr></thead>
+   <tbody>${CAT.map((c,k)=>`<tr><td><span class="sw" style="background:${col(k)}"></span>${c[0]}</td>${P.map((p,j)=>`<td class="${p===S.prof?"on":""}">${V[j][k]?BRL(V[j][k]):"—"}</td>`).join("")}</tr>`).join("")}</tbody>
+   <tfoot><tr><td>Total</td>${P.map((p,j)=>`<td class="${p===S.prof?"on":""}">${BRL(sum(V[j]))}</td>`).join("")}</tr>
+   <tr><td style="font-weight:500">Por dia aproveitado</td>${P.map((p,j)=>`<td class="${p===S.prof?"on":""}" style="font-weight:500">${BRL(sum(V[j])/useful(d))}</td>`).join("")}</tr></tfoot></table></div>`;
+}
+function dayPlan(d){
+  const o=cur(), L=diff(o.a,o.b)+1, mid=L-2;
+  let idx;
+  if(mid<=6){ const pri=[...(P5[d.code]||[1,2,3])]; for(let i=1;i<=6;i++) if(!pri.includes(i)) pri.push(i); idx=pri.slice(0,Math.max(1,mid)).sort((a,b)=>a-b); }
+  else idx=[1,2,3,4,5,6];
+  const out=[d.plan[0], ...idx.map(i=>d.plan[i])];
+  for(let k=0;k<mid-6;k++) out.push("Dia livre: descanso, compras ou repetir o passeio preferido.");
+  out.push(d.plan[7]);
+  return out.map((t,i)=>[fd(add(o.a,i)), t]);
+}
+const strip = d => `<div class="strip" aria-label="Clima mês a mês">${MS.map((x,i)=>`<i class="c-${score(d,i+1)} ${i+1===S.month?"on":""}" title="${MN[i]}: ${seg(d,i+1)[3]}">${x[0]}</i>`).join("")}</div>`;
+function renderBoard(){
+  const L=sorted(filtered()), o=cur(), N=nights();
+  $("count").textContent=`${L.length} destino${L.length===1?"":"s"} · ${MN[S.month-1]} · ${N} noites (${optLabel(o).replace("★ ","")}) · perfil ${PROF[S.prof]} · valores ${S.mode==="casal"?"para o casal":"por pessoa"}`;
+  const board=$("board");
+  if(!L.length){ board.innerHTML=`<div class="empty">Nenhum destino cabe nesse filtro. Aumente o teto por pessoa ou troque a região.</div>`; return; }
+  board.innerHTML=L.map(d=>{
+    const it=items(d,S.prof), tot=sum(it), ok=S.budget? tot<=S.budget : null, bm=bestMonths(d), q=pf(d,S.month);
+    const season = q>1.01 ? "alta temporada" : q<0.99 ? "baixa temporada" : "";
+    return `<article class="dest" id="d-${d.code}">
+      <div class="code" aria-hidden="true">${d.code}</div>
+      <div class="info">
+        <div class="title"><h3 class="city">${d.city}</h3><span class="country">${d.country}</span><span class="chip-c c-${d.climate}">${d.cl}</span></div>
+        <p class="why">${d.why}</p>
+        <p class="mnote"><b>Em ${MN[S.month-1]}:</b> ${d.mnote}</p>
+        <div class="meta"><span>~${d.fly}h de viagem</span><span>${useful(d).toLocaleString("pt-BR")} dias úteis</span><span>${d.doc}</span>${season?`<span>${season}</span>`:""}${far(d)?`<span class="chip-c c-1">Longe demais para poucos dias</span>`:""}</div>
+        ${strip(d)}
+        <div class="meta"><span>Melhores meses: ${bm.length?bm.join(", "):"nenhum com clima ótimo"}</span></div>
+      </div>
+      <div class="price">
+        <div class="amount">${BRL(tot*mult())} <small>${S.mode==="casal"?"casal":"por pessoa"}</small></div>
+        <div class="pp">${S.mode==="casal"?BRL(tot)+" por pessoa":BRL(tot*2)+" o casal"} · ${BRL(tot*mult()/useful(d))}/dia</div>
+        <div class="mini" role="img" aria-label="Divisão do custo">${it.map((v,k)=>`<i style="width:${v/tot*100}%;background:${col(k)}"></i>`).join("")}</div>
+        ${ok===null?"":ok?`<span class="inbudget">Dentro do teto</span>`:`<span class="outbudget">Acima do teto</span>`}
+      </div>
+      <div class="more">
+        <details class="x"><summary>Custos item por item</summary><div>${costTable(d)}</div></details>
+        <details class="x"><summary>Roteiro dia a dia</summary><div>
+          <ol class="days">${dayPlan(d).map(x=>`<li><span class="dl">${x[0]}</span><span>${x[1]}</span></li>`).join("")}</ol>
+          <div class="recs"><p><strong>Em ${MN[S.month-1]}:</strong> ${d.mnote}</p><p><strong>Onde ficar:</strong> ${d.stay}</p><p><strong>Reserve antes:</strong> ${d.tip}</p></div>
+        </div></details>
+        <div><button type="button" class="chip-c" style="border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer" data-plan="${d.code}">Simular no planejador</button></div>
+      </div>
+    </article>`;
+  }).join("");
+  board.querySelectorAll("[data-plan]").forEach(b=>b.addEventListener("click",()=>{
+    P.dest=b.dataset.plan; P.prof=S.prof; renderPlan();
+    $("planejador").scrollIntoView({behavior:"smooth"});
+  }));
+}
+function openDest(code){
+  const el=$("d-"+code);
+  if(!el) return;
+  el.querySelectorAll("details")[0].open=true;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1600);
+}
+
+/* ---------- Planejador ---------- */
+const P={dest:"BSB",prof:"e",n:2,inc:[true,true,true,true,true,true],extra:0.1};
+try{ Object.assign(P, JSON.parse(localStorage.getItem("v27plan")||"{}")); }catch(e){}
+const plDest=$("pl-dest");
+REGIONS.slice(1).forEach(r=>{ const g=document.createElement("optgroup"); g.label=r; D.filter(d=>d.region===r).forEach(d=>{ const o=document.createElement("option"); o.value=d.code; o.textContent=d.city; g.appendChild(o); }); if(g.children.length) plDest.appendChild(g); });
+$("pl-items").innerHTML=CAT.map((c,k)=>`<label class="check"><input type="checkbox" id="inc-${k}" data-k="${k}"><span><span class="sw" style="background:${col(k)}"></span>${c[0]}</span></label>`).join("");
+plDest.addEventListener("change",e=>{P.dest=e.target.value; renderPlan();});
+$("pl-prof").addEventListener("click",e=>{const b=e.target.closest("button"); if(b){P.prof=b.dataset.p; renderPlan();}});
+const nIn=$("pl-n");
+const setN=v=>{P.n=Math.max(1,Math.min(6,v||1)); renderPlan();};
+$("pl-minus").addEventListener("click",()=>setN(P.n-1));
+$("pl-plus").addEventListener("click",()=>setN(P.n+1));
+nIn.addEventListener("change",()=>setN(parseInt(nIn.value,10)));
+$("pl-items").addEventListener("change",e=>{const k=+e.target.dataset.k; P.inc[k]=e.target.checked; renderPlan();});
+$("pl-extra").addEventListener("change",e=>{P.extra=+e.target.value; renderPlan();});
+$("planForm").addEventListener("submit",e=>e.preventDefault());
+
+function planItems(d,m=S.month,N=nights()){
+  return items(d,P.prof,m,N).map((v,k)=>{ if(!P.inc[k]) return 0; if(k===1) return P.n===1? v*1.8 : v*P.n; return v*P.n; });
+}
+function renderPlan(){
+  const d=D.find(x=>x.code===P.dest)||D[0], o=cur(), m=S.month, N=nights();
+  try{ localStorage.setItem("v27plan",JSON.stringify(P)); }catch(e){}
+  plDest.value=d.code; nIn.value=P.n;
+  document.querySelectorAll("#pl-prof button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===P.prof));
+  $("pl-extra").value=String(P.extra);
+  CAT.forEach((c,k)=>{ $("inc-"+k).checked=P.inc[k]; });
+  const it=planItems(d), sub=sum(it), extra=sub*P.extra, tot=sub+extra, sm=saveMonths(m), s=seg(d,m);
+  $("pl-title").textContent=`${d.city}, ${P.n} pessoa${P.n>1?"s":""}`;
+  $("pl-sub").textContent=`Perfil ${PROF[P.prof]} · ${fd(o.a)} a ${fd(o.b)} de 2027, ${N} noites · ${s[3].toLowerCase()}${far(d)?" · longe demais para poucos dias":""}`;
+  $("pl-bigs").innerHTML=`
+    <div class="big hl"><span>Total da viagem</span><b class="num">${BRL(tot)}</b><span>${P.extra?`inclui ${Math.round(P.extra*100)}% de reserva`:"sem reserva extra"}</span></div>
+    <div class="big"><span>Guardar por mês</span><b class="num">${BRL(tot/sm)}</b><span>${sm} ${sm===1?"mês":"meses"}, de out/2026 a ${mAbs(2027*12+m-2)}</span></div>
+    <div class="big"><span>Por pessoa por dia</span><b class="num">${BRL(tot/P.n/useful(d))}</b><span>${useful(d).toLocaleString("pt-BR")} dias aproveitados</span></div>`;
+  $("pl-bar").innerHTML=sub? it.map((v,k)=>`<i style="width:${v/tot*100}%;background:${col(k)}"></i>`).join("")+(extra?`<i style="width:${extra/tot*100}%;background:var(--track)"></i>`:"") : "";
+  const intl=d.region!=="Brasil", visa=/visto/.test(d.doc), pass=/Passaporte/.test(d.doc);
+  const payWhen=[intl?when(m,6,4):when(m,4,2), intl?when(m,5,3):when(m,3,2), "Na viagem", when(m,2,1), "Na viagem", intl?when(m,1,1):"Na viagem"];
+  $("pl-tbl").innerHTML=`<thead><tr><th>Item</th><th>Valor</th><th>% do total</th><th>Quando pagar</th></tr></thead>
+    <tbody>${CAT.map((c,k)=>`<tr><td><span class="sw" style="background:${col(k)}"></span>${c[0]}</td><td>${it[k]?BRL(it[k]):"—"}</td><td>${it[k]?Math.round(it[k]/tot*100)+"%":"—"}</td><td style="text-align:left">${it[k]?payWhen[k]:"—"}</td></tr>`).join("")}
+    ${extra?`<tr><td><span class="sw" style="background:var(--track)"></span>Reserva para imprevistos</td><td>${BRL(extra)}</td><td>${Math.round(extra/tot*100)}%</td><td style="text-align:left">Levar na viagem</td></tr>`:""}</tbody>
+    <tfoot><tr><td>Total</td><td>${BRL(tot)}</td><td>100%</td><td></td></tr></tfoot>`;
+  // preço ao longo do ano (mesma duração padrão)
+  const Nreg=S.dur==="5"?4:7;
+  const Y=Array.from({length:12},(_,i)=>{ const v=sum(planItems(d,i+1,Nreg)); return {m:i+1,v:v*(1+P.extra)}; });
+  const ymax=Math.max(...Y.map(x=>x.v)), ymin=Math.min(...Y.map(x=>x.v));
+  const cheapGood=Y.filter(x=>score(d,x.m)===3).sort((a,b)=>a.v-b.v)[0];
+  $("pl-ysub").textContent=`${Nreg} noites, mesmo perfil e número de pessoas. Cor = clima do mês. Vai de ${BRL(ymin)} a ${BRL(ymax)}${cheapGood?`; o mês com clima ótimo mais barato é ${MN[cheapGood.m-1]}`:""}.`;
+  $("pl-year").innerHTML=Y.map(x=>`<button type="button" class="ycol" data-m="${x.m}" aria-pressed="${x.m===m}" aria-label="${MN[x.m-1]}: ${BRL(x.v)}"><span class="yt"><i class="yb s${score(d,x.m)}" style="height:${Math.max(6,x.v/ymax*100)}%"></i></span><span>${MS[x.m-1]}</span></button>`).join("");
+  $("pl-year").querySelectorAll(".ycol").forEach(b=>{
+    const x=Y[b.dataset.m-1];
+    b.addEventListener("mousemove",e=>showTip(e,`<b>${MN[x.m-1]}</b><br>${seg(d,x.m)[3]}<br>${BRL(x.v)}`));
+    b.addEventListener("mouseleave",hideTip);
+    b.addEventListener("click",()=>{ hideTip(); setMonth(x.m); });
+  });
+  // calendário de compras
+  const lim=add(o.va,-30), limTxt=`${lim.getDate()} de ${MN[lim.getMonth()]}${lim.getFullYear()!==2027?" de "+lim.getFullYear():""}`;
+  const T=[];
+  T.push(["Out/2026",`Começar a guardar ${BRL(tot/sm)} por mês.`]);
+  if(visa) T.push(["Já",`Tirar passaporte e agendar o visto. ${d.country==="México"?"O visto americano válido também libera a entrada no México.":"A fila de entrevista para o visto americano pode levar meses."}`]);
+  else if(pass) T.push([when(m,4,3)==="Já"?"Já":"Até "+mAbs(2027*12+m-1-3),"Tirar ou renovar o passaporte. Para a Europa, conferir se a autorização ETIAS já é exigida."]);
+  if(it[0]) T.push([intl?when(m,6,4):when(m,4,2),"Comprar as passagens. Ative alertas de preço antes."]);
+  if(it[1]) T.push([intl?when(m,5,3):when(m,3,2),`Reservar hospedagem: ${d.stay}`]);
+  T.push([when(m,2,1),d.tip]);
+  T.push([`Até ${limTxt}`, `Pedir férias de ${fd(o.va)} a ${fd(o.vb)} (${vacDays(o)} dias corridos, ${workUsed(o)} de trabalho). A empresa precisa avisar com 30 dias de antecedência.${o.need.length?` Combinar a emenda de ${o.need.map(fd).join(" e ")}.`:""}`]);
+  if(intl) T.push([when(m,1,1),"Contratar seguro viagem e carregar a conta global ou o cartão internacional."]);
+  T.push([fd(o.a),"Embarque."]);
+  $("pl-time").innerHTML=T.map(t=>`<li><span class="when">${t[0]}</span><span>${t[1]}</span></li>`).join("");
+}
+
+/* ---------- Calendário, ano e feriados ---------- */
+function renderCal(){
+  const o=cur(), m=S.month, L=opts(m,S.dur), f=folga(o);
+  $("calTitle").textContent=`${MN[m-1][0].toUpperCase()+MN[m-1].slice(1)} de 2027`;
+  $("calOpts").innerHTML=L.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===S.opt}">${optLabel(x)}</button>`).join("");
+  $("calOpts").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>setOpt(b.dataset.i)));
+  const first=new Date(2027,m-1,1).getDay();
+  let h=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(x=>`<span class="h">${x}</span>`).join("");
+  for(let i=0;i<first;i++) h+=`<span class="d x"></span>`;
+  for(let d=new Date(2027,m-1,1); d.getMonth()===m-1; d=add(d,1)){
+    const vac=d>=o.va&&d<=o.vb, trip=d>=o.a&&d<=o.b, em=o.need.some(x=>same(x,d)), H=hol(d);
+    h+=`<span class="d ${vac?"vac":em?"em":trip?"trip":""} ${H?"hol":""}" ${H?`title="${H[0]}${H[1]==="f"?" (ponto facultativo)":""}"`:""}>${d.getDate()}</span>`;
+  }
+  $("cal").innerHTML=h;
+  const cross = o.b.getMonth()!==m-1 || o.a.getMonth()!==m-1 || o.va.getMonth()!==m-1 || o.vb.getMonth()!==m-1;
+  $("calNote").innerHTML=`<b>Viagem de ${fd(o.a)} a ${fd(o.b)}</b> (${nights()} noites). Férias de ${fd(o.va)} a ${fd(o.vb)}: ${vacDays(o)} dias corridos, ${workUsed(o)} de trabalho. Folga contínua de ${f.n} dias (${fd(f.s)} a ${fd(f.e)})${o.need.length?", contando a emenda":""}.${cross?" Parte das datas fica no mês vizinho.":""}<br>${o.note}`;
+}
+function vacPeriod(vaS,len){ const va=dt(vaS), vb=add(va,len-1); return {va,vb,need:[]}; }
+function renderYear(){
+  const o=cur(), m=S.month, rows=[], carn={va:dt("2027-02-10"),vb:dt("2027-02-24"),need:[]};
+  const inCarn = o.kind==="hol" && o.t==="Carnaval";
+  rows.push([`Carnaval${inCarn?" + esta viagem":""}`,`${fd(carn.va)} a ${fd(carn.vb)}`,15,folga(carn).n]);
+  let used=15, fol=folga(carn).n;
+  if(!inCarn){ rows.push([`Esta viagem (${MN[m-1]})`,`${fd(o.va)} a ${fd(o.vb)}`,vacDays(o),folga(o).n]); used+=vacDays(o); fol+=folga(o).n; }
+  let R=30-used, msg="";
+  if(R>=5){
+    const novConflict = o.va.getMonth()===10 || o.vb.getMonth()===10 || o.va.getMonth()===9 && o.vb>=dt("2027-10-30");
+    const p = novConflict ? vacPeriod("2027-03-29",R) : vacPeriod("2027-11-03",R);
+    const nm = novConflict ? "Páscoa" : "Novembro";
+    if(inCarn && R>10){ const p2=vacPeriod("2027-11-03",10); rows.push(["Novembro",`${fd(p2.va)} a ${fd(p2.vb)}`,10,folga(p2).n]); fol+=folga(p2).n; R-=10; msg=`Sobram ${R} dias para um terceiro período em outro mês (mínimo de 5).`; }
+    else { rows.push([nm,`${fd(p.va)} a ${fd(p.vb)}`,R,folga(p).n]); fol+=folga(p).n; R=0; }
+  } else if(R>0) msg=`Sobram ${R} dias, menos que o mínimo de 5 por período. Eles precisam entrar em um dos outros períodos.`;
+  else if(R<0) msg=`Esta combinação passa dos 30 dias de férias em ${-R} dias. Escolha outra data.`;
+  $("yearplan").innerHTML=rows.map(r=>`<div class="yp"><div><b>${r[0]}</b><br>${r[1]}</div><div class="n">${r[2]} dias de férias<br>${r[3]} dias de folga</div></div>`).join("");
+  const tv=rows.reduce((a,r)=>a+r[2],0);
+  $("ypTot").textContent=`Total: ${tv} dias de férias rendem ${fol} dias de folga.${msg?" "+msg:""}`;
+}
+function renderHolTable(){
+  const rows=[];
+  for(let m=1;m<=12;m++){
+    const hs=Object.entries(HOL).filter(([k])=>k.startsWith(`2027-${String(m).padStart(2,"0")}`)).map(([k,v])=>`${v[0]} (${fd(dt(k))}${v[1]==="f"?", facultativo":""})`);
+    const w=(WIN[m]||[]).map(mkWin);
+    const best=w.length? w.map(o=>`${o.t}: viagem de ${fd(o.a)} a ${fd(o.b)}, férias de ${fd(o.va)} a ${fd(o.vb)}${o.need.length?` + emenda de ${o.need.map(fd).join(" e ")}`:""}`).join("<br>") : "Sem feriado útil: use uma semana de sábado a sábado.";
+    const fo=w.length? Math.max(...w.map(o=>folga(o).n)) : 9;
+    rows.push(`<tr data-m="${m}" class="${m===S.month?"on":""}"><td><button type="button" data-m="${m}">${MN[m-1][0].toUpperCase()+MN[m-1].slice(1)}</button></td><td>${hs.length?hs.join("<br>"):"—"}</td><td>${best}</td><td>${fo} dias</td></tr>`);
+  }
+  $("holtbl").innerHTML=`<thead><tr><th>Mês</th><th style="text-align:left">Feriados nacionais</th><th style="text-align:left">Melhor emenda</th><th>Folga</th></tr></thead><tbody>${rows.join("")}</tbody>`;
+  $("holtbl").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{ setMonth(tr.dataset.m); $("ferias").scrollIntoView({behavior:"smooth"}); }));
+}
+
+/* ---------- Tudo ---------- */
+function update(){
+  syncControls(); setMonthFields();
+  const o=cur();
+  $("eyebrow").textContent=`${S.mode==="casal"?"Casal":"Por pessoa"} · ${MN[S.month-1]} de 2027 · ${nights()} noites · ${fd(o.a)} a ${fd(o.b)} · saída de São Paulo`;
+  const list=filtered();
+  $("compSub").textContent=`${MN[S.month-1][0].toUpperCase()+MN[S.month-1].slice(1)}, ${nights()} noites, perfil ${PROF[S.prof]}, valores ${S.mode==="casal"?"para o casal":"por pessoa"}${S.budget?`, teto de ${BRL(S.budget)} por pessoa`:""}${S.region!=="Todas"?`, ${S.region}`:""}.`;
+  renderMonths(); renderSummary(list); renderHeat(); renderBars(list); renderLanes(list); renderComp(list); renderPerDay(list); renderBoard();
+  renderPlan(); renderCal(); renderYear(); renderHolTable();
+}
+update();
+</script>
+</body>
+</html>
